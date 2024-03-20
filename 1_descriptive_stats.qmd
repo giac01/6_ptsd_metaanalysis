@@ -1,0 +1,820 @@
+---
+title: "PTSD Meta-Analysis"
+format: 
+  html:
+    code-link: true
+    code-fold: true
+    code-tools: true
+    df-print: paged
+editor: visual
+toc: true
+---
+
+## Load Data and R Packages
+
+#### R Packages we will use:
+
+```{r}
+#| output: false
+library(haven)
+library(tidyverse)
+library(metafor)
+library(brms)
+library(lme4)
+library(gt)
+```
+
+#### Load Data
+
+Note that I've changed some of the raw data that is incorrect. 
+
+Note that for study 1, the number of men and women (115, 134) adds up 249, but the total is listed as 252, which is due to missing gender information for 3 individuals in the original source.
+
+Presumably this the same issue with study 15 (Pat-Horenczyk).
+
+```{r}
+rm(list = ls())
+
+df = haven::read_sav(file.path("data", "raw-data_11.03.24_final.sav")) %>%
+     rename_with(tolower) %>%
+     data.frame()
+
+df %>%
+  rowid_to_column() %>%
+   knitr::kable()
+
+
+
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+# Data checks 
+table(df$measures1, df$measure) %>% t()
+
+# Check discrepency of gender info
+(df$male + df$female) - df$participants
+df$fpercent + df$mpercent
+which((df$fpercent + df$mpercent)<98)
+```
+
+## Compute Additional Variables
+
+Add missing count data using the extracted percentages
+
+Reformatted percentages so they're from 0-1 and not 0-100
+
+Created mean-centered age variable
+
+```{r}
+
+# df$male_plus_female_percent = df$mpercent + df$fpercent
+
+df$mpercent  = df$mpercent/100 
+df$fpercent  = df$fpercent/100
+df$ptsd      = df$ptsd/100
+df$aftermath = df$aftermath/12
+
+
+
+df$male[is.na(df$male)] = round(df$participants[is.na(df$male)]*df$mpercent[is.na(df$male)] )
+
+df$female[is.na(df$female)] = round(df$participants[is.na(df$female)]*df$fpercent[is.na(df$female)] )
+
+df$ptsd_n = round(df$ptsd*df$participants)
+
+df$authors[df$authors == "Marroquin"] = "Rivera"
+
+df$war[df$authors == "El-Khodary"] = 1
+
+table(df$aftermath, df$war, useNA = "always")
+
+df$measure[df$measure == "UCLA PTS"] =  "UCLA-PTS"
+
+df$measure_factor = factor(paste0("M",df$measures1))
+
+df$qualityassessment_factor = factor(paste0("Quality Rating: ",df$qualityassessment))
+
+df = df %>%
+     # filter(!exclude) %>%
+     select("authors","participants","ptsd_n",everything()) %>%
+     mutate(
+       age_centered = scale(age, center = TRUE, scale = FALSE),
+       aftermath_centered = scale(aftermath, center = TRUE, scale = FALSE),  
+       quality_centered   = scale(qualityassessment, center = TRUE, scale = TRUE)
+     )
+
+
+
+
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+
+table(df$measures1, df$measure) %>% t()
+```
+
+## Cleaned Dataset
+
+```{r}
+
+write.csv(df, file.path("data","cleaned_df.csv"))
+
+df %>%
+   rowid_to_column() %>%
+   knitr::kable()
+
+```
+
+## Calculate Effect Sizes
+
+```{r}
+
+df = 
+metafor::escalc(
+  xi = ptsd_n,
+  ni = participants,
+  data = df,
+   measure = "PLO",
+  var.names = c("prev_plo", "prev_plo_var")
+  )
+
+df = 
+metafor::escalc(
+  xi = ptsd_n,
+  ni = participants,
+  data = df,
+   measure = "PR",
+  var.names = c("prev_pr", "prev_pr_var")
+  )
+
+
+
+```
+
+## R1) Overall Prevalance (No moderations)
+
+```{r}
+
+results_glmm = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  # mods = ~ 0 + gender_male + gender_female,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+summary(results_glmm)
+
+
+```
+
+#### Prediction intervals on logit scale
+
+These results are not helpful as they're on the logit scale, so we need to transform using the logit function below!
+
+```{r}
+predict(results_glmm,
+        level = .95
+        )
+
+```
+
+#### Prediction intervals on percentage scale
+
+These results show that the AVERAGE prevalence is 26% 95%CI \[.17, 37\]
+
+However the prediction intervals are very wide 95% CI \[.02, .84\].
+
+```{r}
+predict(results_glmm, 
+        level = .95,
+        transf=transf.ilogit)
+```
+
+### Forest Plot
+
+```{r}
+#| label: fig-forestplot
+#| fig-cap: "Forest plot of meta-analysis with no moderations"
+forest(
+  results_glmm,
+  transf = transf.ilogit,
+  slab = authors,
+  addpred = TRUE,
+  header = TRUE,
+  steps = 10,
+  order = "obs"
+) 
+
+
+
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+pdf(file.path("plots","forest_plot_1.pdf"), width = 10, height = 7)
+
+forest(
+  results_glmm,
+  transf = transf.ilogit,
+  slab = authors,
+  addpred = TRUE,
+  header = TRUE,
+  steps = 10,
+  order = "obs"
+) 
+
+dev.off()
+
+```
+
+## R2) Within-Study Comparison of Men and Women
+
+#### Prepare Dataset
+
+```{r}
+
+# df_gender = df %>%
+#   metafor::escalc(
+#     data = .,
+#     ai = `male_ptsd`,
+#     n1i = `male_n`,
+#     ci = `female_ptsd`,
+#     n2i = `female_n`,
+#     measure = "PLO"
+# )
+
+df_gender = df %>%
+  filter(!is.na(male) & !is.na(female)) %>%
+  mutate(
+    male_n = male,
+    male_ptsd = round(male*mpercent),
+    female_n = female,
+    female_ptsd = round(female*fpercent)
+  ) %>%
+  select(authors, male_n, male_ptsd, female_n, female_ptsd)
+
+df_gender = df_gender %>%
+  metafor::escalc(
+    data = .,
+    ai = `male_ptsd`, 
+    n1i = `male_n`,
+    ci = `female_ptsd`,
+    n2i = `female_n`,
+    measure = "OR",
+    var.names = c("log.odds", "log.odds.se")
+  )
+
+
+df_gender %>%
+   knitr::kable()
+
+
+```
+
+#### Meta-Analysis
+
+```{r}
+
+results_glmm = rma.glmm(
+  ai = `male_ptsd`, 
+  n1i = `male_n`,
+  ci = `female_ptsd`,
+  n2i = `female_n`,
+  
+  data = df_gender, 
+  measure="OR",
+  model = "CM.EL",
+  verbose = FALSE,
+  # method = "ML",
+  # intercept = FALSE,
+  # mods = ~ 0 + gender_male + gender_female,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+  # nAGQ = 1
+)
+
+
+summary(results_glmm)
+
+predict(results_glmm, transf=exp, digits=3)
+```
+
+### Forest Plot
+
+```{r}
+
+pdf(file.path("plots","gender_forest.pdf"), width = 10, height = 7.7)  # Adjust the size as needed
+
+res = results_glmm
+# forestplot = 
+forest(
+  results_glmm,
+  # transf = transf.ilogit,
+  slab = authors,
+  addpred = TRUE,
+  steps = 10,
+  order = "obs",
+  ilab = cbind(female_n, female_ptsd, male_n, male_ptsd),
+  header="First Author",
+  ilab.xpos=(-9:-6)+3,
+  mlab="",
+  shade = TRUE
+) 
+
+text((-9:-6)+3, results_glmm$k+3, c("Female", "Female", "Male", "Male"))
+text((-9:-6)+3,     results_glmm$k+2, c("N", "PTSD"))
+
+text(-6.3, -0.25, pos=1, cex=1, bquote(paste(
+  "RE Model (K = ", .(fmtx(res$k, digits=0)),
+  ", df = ", .(res$k - res$p), ", ",
+  .(fmtp(res$QEp, digits=3, pname="p", add0=TRUE, sep=TRUE, equal=TRUE)), "; ",
+  I^2, " = ", .(fmtx(res$I2, digits=1)), "%)")))
+
+dev.off()
+
+```
+
+```{r}
+forest(
+  results_glmm,
+  # transf = transf.ilogit,
+  slab = authors,
+  addpred = TRUE,
+  steps = 10,
+  order = "obs",
+  ilab = cbind(female_n, female_ptsd, male_n, male_ptsd),
+  header="First Author",
+  ilab.xpos=(-9:-6)+3,
+  mlab="",
+  shade = TRUE
+) 
+text((-9:-6)+3, cex = .5,results_glmm$k+3, c("Female", "Female", "Male", "Male"))
+text((-9:-6)+3, cex = .5, results_glmm$k+2, c("N", "PTSD"))
+```
+
+The above effect is negative, which here indicates that PTSD rates are slightly here in women across the studies, but the effect is not significant.
+
+## R3) Meta-Regressions - age, ongoing war, method of measurement, country income level (IN PROGRESS)
+
+```{r}
+
+#| echo: true
+#| output: false
+#| warning: false
+#|
+moderation_models = list()
+
+moderation_models[["Age"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + age_centered,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models[["War"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + war,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models[["Aftermath"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + aftermath_centered,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models[["Measure"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + measure,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models[["Economic"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + factor(econindex),
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models[["Quality"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + qualityassessment_factor,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models_nointercept = list()
+
+moderation_models_nointercept[["Age"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + age_centered,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models_nointercept[["War"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 0 + factor(war),
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models_nointercept[["Aftermath"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + aftermath_centered,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+
+moderation_models_nointercept[["Measure"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 0 + measure,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models_nointercept[["Economic"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 0 + factor(econindex),
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models_nointercept[["Quality"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 0 + qualityassessment_factor,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+
+
+```
+
+### Create Table
+
+```{r}
+# moderation_models[[2]]
+
+moderation_results = list()
+
+for (i in 1:length(moderation_models)){
+  moderation_results[[i]] = list()
+  moderation_results[[i]][["QM"]]    = moderation_models[[i]]$QM
+  moderation_results[[i]][["QMdf_1"]]  = moderation_models[[i]]$QMdf[1]
+  moderation_results[[i]][["QMdf_2"]]  = moderation_models[[i]]$QMdf[2]
+  moderation_results[[i]][["QMp"]]   = moderation_models[[i]]$QMp
+  moderation_results[[i]][["N Studies"]] =  length(moderation_models[[i]]$ni)
+  moderation_results[[i]][["N Participants"]] = sum(moderation_models[[i]]$ni)
+}
+
+moderation_df <- do.call(rbind, lapply(moderation_results, function(x) as.data.frame(t(unlist(x)))))
+
+rownames(moderation_df) = names(moderation_models)
+
+moderation_df %>%
+  gt(rowname_col = "Moderation Test",
+     rownames_to_stub = TRUE) %>%
+  gt::tab_header(title = "Moderation Tests") %>%
+  fmt_number(columns = c(QM,QMp), decimals = 3)
+  
+  
+  
+```
+
+```{r}
+
+moderation_coef = list()
+
+for (i in 1:length(moderation_models_nointercept)){
+  moderation_coef[[i]]          = list()
+  moderation_coef[[i]][["QM"]]  = moderation_models_nointercept[[i]]
+  
+  moderation_coef[[i]] = data.frame(
+    model = names(moderation_models_nointercept)[i],
+    group = rownames(moderation_models_nointercept[[i]]$beta),
+    b     = moderation_models_nointercept[[i]][c("b")],
+    ci.lb = moderation_models_nointercept[[i]][c("ci.lb")],
+    ci.ub = moderation_models_nointercept[[i]][c("ci.ub")],
+    se    = moderation_models_nointercept[[i]][c("se")],
+    p     = moderation_models_nointercept[[i]][c("pval")]
+  )
+  
+   # moderation_coef[[i]] = moderation_coef[[i]] %>%
+   #   mutate(across(c(b, ci.lb, ci.ub), ~plogis(.x)))
+  
+}
+
+moderation_coef[[match("War", names(moderation_models))]]$group = c("Ongoing War","Aftermath")
+
+moderation_coef %>%
+  do.call("bind_rows",.) %>%
+  `rownames<-`((NULL)) %>%
+  select(-pval) %>%
+  select(-se) %>%
+  mutate(group = gsub("measure","", group)) %>%
+  mutate(group = gsub("factor\\(econindex\\)","", group)) %>%
+  mutate(group = gsub("qualityassessment_factor","", group)) %>%
+  mutate(group = gsub("intrcpt","Intercept", group)) %>%
+  gt() %>%
+  cols_hide("model") %>%
+  tab_row_group(
+    label = "Ongoing / Aftermath War, F(df1 = 1, df2 = 19) = .43, p = .84",
+    rows = which(model=="War")
+  ) %>%
+    tab_row_group(
+    label = "Mean Sample Age, F(df1 = 1, df2 = 19) = 2.95, p = .10",
+    rows = which(model=="Age")
+  ) %>%
+    tab_row_group(
+    label = "PTSD Measure, F(df1 = 11, df2 = 9) = 5.64, p = .007",
+    rows = which(model=="Measure")
+  ) %>%
+    tab_row_group(
+    label = "Economic Index, F(df1 = 3, df2 = 17) = 0.21, p = .89",
+    rows = which(model=="Economic")
+  ) %>%
+    tab_row_group(
+    label = "Aftermath Length, F(df1 = 1, df2 = 10) = 8.75, p = .014",
+    rows = which(model=="Aftermath")
+  ) %>%
+  tab_row_group(
+    label = "Quality Assessment, F(df1 = 6, df2 = 14) = 1.87, p = .16",
+    rows = which(model=="Quality")
+  ) %>%
+   fmt_percent(
+    rows     = (model != "Age") & (model != "Aftermath"),
+    columns  = everything(),
+    decimals = 1,
+    use_seps = FALSE
+  ) %>%
+  fmt(
+    rows     = (model != "Age") | (model != "Aftermath"),
+    columns  = c(b, ci.lb, ci.ub),
+    fns      = function(x) {paste0(signif((plogis(x)*100),3),"%")}
+  ) %>%
+   fmt(
+    rows     = (model == "Age") | (model == "Aftermath"),
+    columns  = c(b, ci.lb, ci.ub),
+    fns      = function(x) {paste0("b = ", gbtoolbox::apa_num(as.numeric(x)))}
+  )
+
+
+
+```
+
+### Additional Plots
+
+### Age
+
+```{r}
+
+df %>%
+  arrange((prev_plo_var))%>%
+  mutate(war_factor = factor(war, levels = 0:1, labels = c("On Going", "Aftermath")),
+         war_factor = forcats::fct_explicit_na(war_factor, na_level = "Missing")) %>%
+  ggplot(aes(y = prev_pr, x = age)) +
+  geom_point(aes(size = 1/prev_plo_var, shape = war_factor,col = war_factor)) + 
+  labs(x = "Mean Sample Age (Years)", y = "PTSD Prevalence",
+       col = "War", shape = "War") +
+  ggrepel::geom_text_repel(aes(label = authors), size = 3) +
+  guides(size = "none") 
+  
+
+  table(df$war)
+
+
+```
+
+### Aftermath
+
+```{r}
+intercept = moderation_models$Aftermath$b[1,1]
+slope = moderation_models$Aftermath$b[2,1]
+
+df %>%
+  arrange((prev_plo_var))%>%
+  filter(!is.na(aftermath)) %>%
+  mutate(war_factor = factor(war, levels = 0:1, labels = c("On Going", "Aftermath")),
+         war_factor = forcats::fct_explicit_na(war_factor, na_level = "Missing")) %>%
+  ggplot(aes(
+    y = prev_pr, 
+    x = aftermath,
+    col = authors
+    )) +
+  geom_point(
+    aes(
+      size = 1/prev_plo_var
+      )) + 
+  labs(
+    x = "Aftermath Length (Years)", 
+       y = "PTSD Prevalence",
+       col = "War", 
+       shape = "War"
+    ) +
+  ggrepel::geom_text_repel(
+    seed = 10,
+    aes(
+      label = authors
+      ), 
+    size = 3
+    ) +
+  # Note theat the analyses use aftermath centered, so we need to adjust for that here
+  geom_function(
+    fun = function(x) plogis(intercept + slope*(x - mean(df$aftermath, na.rm = TRUE))), 
+    colour = "black",
+    linewidth = 1
+    # xlim = c(-4,7)
+    ) +
+  guides(size = "none", col = "none") +
+  scale_y_continuous(
+    breaks = (seq(0,1,by=.1)), # Labels for the ticks, in their original, untransformed units
+    labels = paste0((0:10)*10,"%")
+  ) +
+  scale_color_manual(values = c("#E69F00", "#56B4E9", "#009E73", "#0072B2", "#0072B2", "#D55E00", "#CC79A7", "#999999", "#000000", "#FFB000", "#90B000", "#B000B0")) + 
+  theme_light()
+  
+
+ggsave(file = file.path("plots","bubbleplot_aftermath2.pdf"), width = 4, height = 4)
+
+
+
+```
+
+```{r}
+#| echo: false
+#| output: false
+#| warning: false
+#|
+
+
+# 
+# 
+# plogis_trans <- scales::trans_new(
+#   name = "plogis",
+#   transform = plogis,
+#   inverse = qlogis
+#   # domain = c(0, 1)
+# )
+# 
+# qlogis_trans <- scales::trans_new(
+#   name = "qlogis",
+#   transform = qlogis,
+#   inverse = plogis,
+#   domain = c(0, 1)
+# )
+# 
+# 
+# df %>%
+#   arrange((prev_plo_var))%>%
+#   filter(!is.na(aftermath)) %>%
+#   mutate(
+#     war_factor = factor(war, levels = 0:1, labels = c("On Going", "Aftermath")),
+#     war_factor = forcats::fct_explicit_na(war_factor, na_level = "Missing")) %>%
+#   ggplot(aes(
+#     y = (prev_plo), 
+#     x = aftermath_centered)) +
+#   geom_point(
+#     aes(
+#       size = 1/prev_plo_var
+#       # shape = war_factor,
+#       # col = war_factor
+#       )
+#   ) + 
+#   labs(
+#     x = "Aftermath Length (Months)", 
+#     y = "PTSD Prevalence (%)",
+#     col = "War", 
+#     shape = "War"
+#   ) +
+#   # ggrepel::geom_text_repel(aes(label = authors), size = 3, verbose = TRUE) +
+#   guides(size = "none") +
+#   geom_abline(
+#     intercept = moderation_models$Aftermath$b[1,1],
+#     slope = moderation_models$Aftermath$b[2,1]
+#   ) +
+#   coord_trans(y = plogis_trans, ylim = c(-3,1.5)) +   # note the data is already QLOGIS transformed, so we apply the reverse 
+#   geom_text(
+#     aes(
+#       label = authors,
+#       y = qlogis(plogis(prev_plo+.0)+.0)
+#     ),
+#     col = "#56B4E9",
+#     size = 1.5 
+#     # nudge_y = -.1
+#     ) +
+#   scale_y_continuous(
+#     breaks = qlogis(seq(0.1,.9,by=.1)), # Labels for the ticks, in their original, untransformed units
+#     labels = paste0((1:9)*10,"%")
+#   ) + 
+#   theme(legend.position = c(1, 0), legend.justification = c(1, 0))
+# 
+# 
+# ggsave(file = file.path("plots","bubbleplot_aftermath.pdf"), width = 4, height = 4)
+
+```
+
+
+## Appendix: Model Output
+
+Intercept models
+
+```{r}
+moderation_models
+```
+
+No Intercept Models
+
+```{r}
+moderation_models_nointercept
+```
