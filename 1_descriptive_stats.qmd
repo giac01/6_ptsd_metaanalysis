@@ -26,11 +26,35 @@ library(gt)
 
 #### Load Data
 
-Note that I've changed some of the raw data that is incorrect. 
+Note that I've changed some of the raw data that is incorrect.
+
+I've updated information from the Harb study in the code below which was incorrect.
+
+I've also updated the data extraction for Kakaje usign the data in table 5.
 
 Note that for study 1, the number of men and women (115, 134) adds up 249, but the total is listed as 252, which is due to missing gender information for 3 individuals in the original source.
 
 Presumably this the same issue with study 15 (Pat-Horenczyk).
+
+Data Description
+
+-   participants - Number of Participants
+
+-   male - Number of Males in the sample
+
+-   mpercent - Percentage of males in the sample
+
+-   Female - Number of Females in the sample
+
+-   fpercent - Percentage of females in the sample
+
+-   age - mean age of sample participants
+
+-   ptsd - overall % of participants with PTSD in sample
+
+-   mptsd - % of males with PTSD in sample
+
+-   fptsd - % of females with PTSD in sample
 
 ```{r}
 rm(list = ls())
@@ -42,6 +66,7 @@ df = haven::read_sav(file.path("data", "raw-data_11.03.24_final.sav")) %>%
 df %>%
   rowid_to_column() %>%
    knitr::kable()
+
 
 
 
@@ -68,6 +93,8 @@ Reformatted percentages so they're from 0-1 and not 0-100
 
 Created mean-centered age variable
 
+Fixed error on the Harb study where males were not measured in their PTSD
+
 ```{r}
 
 # df$male_plus_female_percent = df$mpercent + df$fpercent
@@ -75,17 +102,25 @@ Created mean-centered age variable
 df$mpercent  = df$mpercent/100 
 df$fpercent  = df$fpercent/100
 df$ptsd      = df$ptsd/100
+df$mptsd      = df$mptsd/100
+df$fptsd      = df$fptsd/100
+df$authors = as.character(df$authors)
+
 df$aftermath = df$aftermath/12
 
+df$male[is.na(df$male)] = round(
+  df$participants[is.na(df$male)]*df$mpercent[is.na(df$male)]
+  )
 
-
-df$male[is.na(df$male)] = round(df$participants[is.na(df$male)]*df$mpercent[is.na(df$male)] )
-
-df$female[is.na(df$female)] = round(df$participants[is.na(df$female)]*df$fpercent[is.na(df$female)] )
+df$female[is.na(df$female)] = round(
+  df$participants[is.na(df$female)]*df$fpercent[is.na(df$female)] 
+  )
 
 df$ptsd_n = round(df$ptsd*df$participants)
 
 df$authors[df$authors == "Marroquin"] = "Rivera"
+df$authors[grep("^Pat",df$authors)] = "Pat-Horenczyk"
+
 
 df$war[df$authors == "El-Khodary"] = 1
 
@@ -96,6 +131,31 @@ df$measure[df$measure == "UCLA PTS"] =  "UCLA-PTS"
 df$measure_factor = factor(paste0("M",df$measures1))
 
 df$qualityassessment_factor = factor(paste0("Quality Rating: ",df$qualityassessment))
+
+harb_row = which(df$authors=="Harb")
+
+df$participants[harb_row] = 40
+df$male[harb_row]         = 0
+df$mpercent[harb_row]     = 0
+df$female[harb_row]       = 40
+df$fpercent[harb_row]     = 1
+df$mptsd[harb_row]        = NA
+df$ptsd[harb_row]         = .90
+
+kakaje_row = which(df$authors=="Kakaje")
+
+df$participants[kakaje_row] = 407+304+229+413
+df$male[kakaje_row]         = 407+304
+df$female[kakaje_row]       = 229+413
+df$mpercent[kakaje_row]     = df$male[kakaje_row] / 
+                              (df$male[kakaje_row] + df$female[kakaje_row])
+df$fpercent[kakaje_row]     = df$female[kakaje_row] / 
+                               (df$male[kakaje_row] + df$female[kakaje_row])
+df$mptsd[kakaje_row]        = 304/(407+304)
+df$fptsd[kakaje_row]        = 413/(229+413)
+df$ptsd[kakaje_row]         = (304+413)/(407+304+229+413)
+
+
 
 df = df %>%
      # filter(!exclude) %>%
@@ -116,6 +176,14 @@ df = df %>%
 #| output: false
 
 
+weighted_percent = df$mpercent*df$mptsd + df$fpercent*df$fptsd
+
+# Weighted percentages match the overall numbers
+data.frame(percent = df$ptsd, weighted_percent = weighted_percent) %>% 
+  ggplot(aes(percent, weighted_percent)) + 
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1)
+
 table(df$measures1, df$measure) %>% t()
 ```
 
@@ -127,7 +195,7 @@ write.csv(df, file.path("data","cleaned_df.csv"))
 
 df %>%
    rowid_to_column() %>%
-   knitr::kable()
+   knitr::kable(digits = 3)
 
 ```
 
@@ -205,37 +273,36 @@ predict(results_glmm,
 ### Forest Plot
 
 ```{r}
-#| label: fig-forestplot
-#| fig-cap: "Forest plot of meta-analysis with no moderations"
-forest(
-  results_glmm,
-  transf = transf.ilogit,
-  slab = authors,
-  addpred = TRUE,
-  header = TRUE,
-  steps = 10,
-  order = "obs"
-) 
-
-
-
-```
-
-```{r}
 #| echo: false
 #| output: false
 
 pdf(file.path("plots","forest_plot_1.pdf"), width = 10, height = 7)
 
+res = results_glmm
+# forestplot = 
 forest(
   results_glmm,
   transf = transf.ilogit,
   slab = authors,
   addpred = TRUE,
-  header = TRUE,
   steps = 10,
-  order = "obs"
+  order = "obs",
+  ilab = cbind(participants, ptsd_n),
+  header=c("First Author","Prevalence of PTSD [95% CI]"),
+  ilab.xpos=c(-.6,-.3),
+  mlab="",
+  xlab = "Prevalance of PTSD",
+  shade = TRUE
 ) 
+
+text(c(-.6,-.3),     results_glmm$k+2, c("Sample Size", "N PTSD"))
+
+
+text(-.78, 0, pos=1, cex=1, bquote(paste(
+  "RE Model (K = ", .(fmtx(res$k, digits=0)),
+  ", df = ", .(res$k - res$p), ", ",
+  .(fmtp(res$QEp, digits=3, pname="p", add0=TRUE, sep=TRUE, equal=TRUE)), "",
+  I^2, " = ", .(fmtx(res$I2, digits=1)), "%)")))
 
 dev.off()
 
@@ -258,12 +325,12 @@ dev.off()
 # )
 
 df_gender = df %>%
-  filter(!is.na(male) & !is.na(female)) %>%
+  filter(!is.na(mptsd) & !is.na(fptsd)) %>%
   mutate(
     male_n = male,
-    male_ptsd = round(male*mpercent),
+    male_ptsd = round(male*mptsd),
     female_n = female,
-    female_ptsd = round(female*fpercent)
+    female_ptsd = round(female*fptsd)
   ) %>%
   select(authors, male_n, male_ptsd, female_n, female_ptsd)
 
@@ -317,7 +384,7 @@ predict(results_glmm, transf=exp, digits=3)
 
 ```{r}
 
-pdf(file.path("plots","gender_forest.pdf"), width = 10, height = 7.7)  # Adjust the size as needed
+pdf(file.path("plots","gender_forest.pdf"), width = 10, height = 5)  # Adjust the size as needed
 
 res = results_glmm
 # forestplot = 
@@ -330,18 +397,18 @@ forest(
   order = "obs",
   ilab = cbind(female_n, female_ptsd, male_n, male_ptsd),
   header="First Author",
-  ilab.xpos=(-9:-6)+3,
+  ilab.xpos=(-9:-6)+3.5,
   mlab="",
   shade = TRUE
 ) 
 
-text((-9:-6)+3, results_glmm$k+3, c("Female", "Female", "Male", "Male"))
-text((-9:-6)+3,     results_glmm$k+2, c("N", "PTSD"))
+text((-9:-6)+3.5, results_glmm$k+3, c("Female", "Female", "Male", "Male"))
+text((-9:-6)+3.5,     results_glmm$k+2, c("N", "PTSD"))
 
-text(-6.3, -0.25, pos=1, cex=1, bquote(paste(
+text(-5.6, -0, pos=1, cex=1, bquote(paste(
   "RE Model (K = ", .(fmtx(res$k, digits=0)),
   ", df = ", .(res$k - res$p), ", ",
-  .(fmtp(res$QEp, digits=3, pname="p", add0=TRUE, sep=TRUE, equal=TRUE)), "; ",
+  .(fmtp(res$QEp, digits=3, pname="p", add0=TRUE, sep=TRUE, equal=TRUE)), "",
   I^2, " = ", .(fmtx(res$I2, digits=1)), "%)")))
 
 dev.off()
@@ -358,12 +425,12 @@ forest(
   order = "obs",
   ilab = cbind(female_n, female_ptsd, male_n, male_ptsd),
   header="First Author",
-  ilab.xpos=(-9:-6)+3,
+  ilab.xpos=(-9:-6)+3.5,
   mlab="",
   shade = TRUE
 ) 
-text((-9:-6)+3, cex = .5,results_glmm$k+3, c("Female", "Female", "Male", "Male"))
-text((-9:-6)+3, cex = .5, results_glmm$k+2, c("N", "PTSD"))
+text((-9:-6)+3.5, cex = .5,results_glmm$k+3, c("Female", "Female", "Male", "Male"))
+text((-9:-6)+3.5, cex = .5, results_glmm$k+2, c("N", "PTSD"))
 ```
 
 The above effect is negative, which here indicates that PTSD rates are slightly here in women across the studies, but the effect is not significant.
@@ -609,27 +676,27 @@ moderation_coef %>%
   gt() %>%
   cols_hide("model") %>%
   tab_row_group(
-    label = "Ongoing / Aftermath War, F(df1 = 1, df2 = 19) = .43, p = .84",
+    label = "Ongoing / Aftermath War, F(df1 = 1, df2 = 19) = .10, p = .76",
     rows = which(model=="War")
   ) %>%
     tab_row_group(
-    label = "Mean Sample Age, F(df1 = 1, df2 = 19) = 2.95, p = .10",
+    label = "Mean Sample Age, F(df1 = 1, df2 = 19) = 2.66, p = .12",
     rows = which(model=="Age")
   ) %>%
     tab_row_group(
-    label = "PTSD Measure, F(df1 = 11, df2 = 9) = 5.64, p = .007",
+    label = "PTSD Measure, F(df1 = 11, df2 = 9) = 6.49, p = .005",
     rows = which(model=="Measure")
   ) %>%
     tab_row_group(
-    label = "Economic Index, F(df1 = 3, df2 = 17) = 0.21, p = .89",
+    label = "Economic Index, F(df1 = 3, df2 = 17) = 0.17, p = .91",
     rows = which(model=="Economic")
   ) %>%
     tab_row_group(
-    label = "Aftermath Length, F(df1 = 1, df2 = 10) = 8.75, p = .014",
+    label = "Aftermath Length, F(df1 = 1, df2 = 10) = 8.81, p = .014",
     rows = which(model=="Aftermath")
   ) %>%
   tab_row_group(
-    label = "Quality Assessment, F(df1 = 6, df2 = 14) = 1.87, p = .16",
+    label = "Quality Assessment, F(df1 = 6, df2 = 14) = 1.69, p = .20",
     rows = which(model=="Quality")
   ) %>%
    fmt_percent(
@@ -803,7 +870,6 @@ ggsave(file = file.path("plots","bubbleplot_aftermath2.pdf"), width = 4, height 
 # ggsave(file = file.path("plots","bubbleplot_aftermath.pdf"), width = 4, height = 4)
 
 ```
-
 
 ## Appendix: Model Output
 
