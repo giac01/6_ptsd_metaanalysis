@@ -435,7 +435,7 @@ text((-9:-6)+3.5, cex = .5, results_glmm$k+2, c("N", "PTSD"))
 
 The above effect is negative, which here indicates that PTSD rates are slightly here in women across the studies, but the effect is not significant.
 
-## R3) Meta-Regressions - age, ongoing war, method of measurement, country income level (IN PROGRESS)
+## R3) Meta-Regressions - age, ongoing war, method of measurement, country income level
 
 ```{r}
 

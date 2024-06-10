@@ -213,6 +213,12 @@
 
 Note that I've changed some of the raw data that is incorrect.
 
+I've updated information from the Harb study in the code below which was
+incorrect.
+
+I've also updated the data extraction for Kakaje usign the data in table
+5.
+
 Note that for study 1, the number of men and women (115, 134) adds up
 249, but the total is listed as 252, which is due to missing gender
 information for 3 individuals in the original source.
@@ -225,15 +231,21 @@ Data Description
 \item
   participants - Number of Participants
 \item
-  male - Number of Males
+  male - Number of Males in the sample
 \item
   mpercent - Percentage of males in the sample
 \item
-  Female - Number of Females
+  Female - Number of Females in the sample
 \item
   fpercent - Percentage of females in the sample
 \item
   age - mean age of sample participants
+\item
+  ptsd - overall \% of participants with PTSD in sample
+\item
+  mptsd - \% of males with PTSD in sample
+\item
+  fptsd - \% of females with PTSD in sample
 \end{itemize}
 
 \begin{Shaded}
@@ -495,6 +507,20 @@ PTSD
 \NormalTok{df}\SpecialCharTok{$}\NormalTok{mptsd[harb\_row]        }\OtherTok{=} \ConstantTok{NA}
 \NormalTok{df}\SpecialCharTok{$}\NormalTok{ptsd[harb\_row]         }\OtherTok{=}\NormalTok{ .}\DecValTok{90}
 
+\NormalTok{kakaje\_row }\OtherTok{=} \FunctionTok{which}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{authors}\SpecialCharTok{==}\StringTok{"Kakaje"}\NormalTok{)}
+
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{participants[kakaje\_row] }\OtherTok{=} \DecValTok{407}\SpecialCharTok{+}\DecValTok{304}\SpecialCharTok{+}\DecValTok{229}\SpecialCharTok{+}\DecValTok{413}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{male[kakaje\_row]         }\OtherTok{=} \DecValTok{407}\SpecialCharTok{+}\DecValTok{304}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{female[kakaje\_row]       }\OtherTok{=} \DecValTok{229}\SpecialCharTok{+}\DecValTok{413}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{mpercent[kakaje\_row]     }\OtherTok{=}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{male[kakaje\_row] }\SpecialCharTok{/} 
+\NormalTok{                              (df}\SpecialCharTok{$}\NormalTok{male[kakaje\_row] }\SpecialCharTok{+}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{female[kakaje\_row])}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{fpercent[kakaje\_row]     }\OtherTok{=}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{female[kakaje\_row] }\SpecialCharTok{/} 
+\NormalTok{                               (df}\SpecialCharTok{$}\NormalTok{male[kakaje\_row] }\SpecialCharTok{+}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{female[kakaje\_row])}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{mptsd[kakaje\_row]        }\OtherTok{=} \DecValTok{304}\SpecialCharTok{/}\NormalTok{(}\DecValTok{407}\SpecialCharTok{+}\DecValTok{304}\NormalTok{)}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{fptsd[kakaje\_row]        }\OtherTok{=} \DecValTok{413}\SpecialCharTok{/}\NormalTok{(}\DecValTok{229}\SpecialCharTok{+}\DecValTok{413}\NormalTok{)}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{ptsd[kakaje\_row]         }\OtherTok{=}\NormalTok{ (}\DecValTok{304}\SpecialCharTok{+}\DecValTok{413}\NormalTok{)}\SpecialCharTok{/}\NormalTok{(}\DecValTok{407}\SpecialCharTok{+}\DecValTok{304}\SpecialCharTok{+}\DecValTok{229}\SpecialCharTok{+}\DecValTok{413}\NormalTok{)}
+
+
 
 \NormalTok{df }\OtherTok{=}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
      \CommentTok{\# filter(!exclude) \%\textgreater{}\%}
@@ -515,48 +541,48 @@ PTSD
 
 \NormalTok{df }\SpecialCharTok{\%\textgreater{}\%}
    \FunctionTok{rowid\_to\_column}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
-\NormalTok{   knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{()}
+\NormalTok{   knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{longtable}[]{@{}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0142}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0331}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0307}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0165}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0118}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0213}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0165}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0213}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0142}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0165}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0165}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0165}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0143}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0334}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0310}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0167}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0119}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0215}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0167}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0215}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0143}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0143}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0143}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0143}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0095}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0260}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0213}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0213}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0236}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0236}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0426}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0402}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0260}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0591}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0165}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0426}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0331}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0331}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0426}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0236}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0165}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0165}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0213}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0213}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0355}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0591}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0307}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0449}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0402}}@{}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0239}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0215}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0215}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0239}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0239}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0430}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0406}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0263}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0597}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0167}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0430}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0334}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0334}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0430}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0239}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0167}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0167}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0215}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0215}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0358}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0597}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0310}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0453}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 72\tabcolsep) * \real{0.0406}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedleft
 rowid
@@ -637,88 +663,88 @@ quality\_centered
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-1 & Fayyad & 252 & 89 & 115 & 0.4560 & 134 & 0.5320 & 14.70 & 0.3550 &
-NA & NA & 1 & 0.7500000 & CRIES & Lebanon & 2 & 1 & 7 & 75.4 & 52.6 &
-38.9 & 36.5 & 35.3 & 29.4 & 16.3 & 15.9 & 2 & 12 & 18 & 7 & 7 & M1 &
-Quality Rating: 7 & -0.4657143 & -2.9744444 & 0.50478790 \\
-2 & Abu-Kaf & 173 & 137 & 65 & 0.3750 & 108 & 0.6250 & 15.85 & 0.7910 &
-0.8100 & 0.7690 & 1 & 10.0000000 & CBCL & Syria & 1 & 4 & 1 & NA & NA &
-NA & NA & NA & NA & NA & NA & 3 & 13 & 18 & 3 & 1 & M4 & Quality Rating:
-1 & 0.6842857 & 6.2755556 & -2.03934313 \\
-3 & Al-Hadethe & 403 & 246 & 248 & 0.6150 & 155 & 0.3850 & 17.50 &
-0.6100 & 0.5800 & 0.6500 & 0 & NA & SPTSS & Iraq & 3 & 5 & 4 & NA & NA &
-NA & NA & NA & NA & NA & NA & 3 & 16 & 19 & 4 & 4 & M5 & Quality Rating:
-4 & 2.3342857 & NA & -0.76727761 \\
-4 & Bhat & 797 & 397 & 469 & 0.5880 & 328 & 0.4120 & 19.90 & 0.4981 & NA
-& NA & 0 & NA & PCL-5 & India & 2 & 3 & 7 & 7.0 & 27.1 & NA & 0.0 & 16.1
-& 26.1 & 5.3 & NA & 2 & 19 & 24 & 6 & 7 & M3 & Quality Rating: 7 &
+1 & Fayyad & 252 & 89 & 115 & 0.456 & 134 & 0.532 & 14.70 & 0.355 & NA &
+NA & 1 & 0.750 & CRIES & Lebanon & 2 & 1 & 7 & 75.4 & 52.6 & 38.9 & 36.5
+& 35.3 & 29.4 & 16.3 & 15.9 & 2 & 12 & 18 & 7 & 7 & M1 & Quality Rating:
+7 & -0.4657143 & -2.9744444 & 0.50478790 \\
+2 & Abu-Kaf & 173 & 137 & 65 & 0.375 & 108 & 0.625 & 15.85 & 0.791 &
+0.810 & 0.769 & 1 & 10.000 & CBCL & Syria & 1 & 4 & 1 & NA & NA & NA &
+NA & NA & NA & NA & NA & 3 & 13 & 18 & 3 & 1 & M4 & Quality Rating: 1 &
+0.6842857 & 6.2755556 & -2.03934313 \\
+3 & Al-Hadethe & 403 & 246 & 248 & 0.615 & 155 & 0.385 & 17.50 & 0.610 &
+0.580 & 0.650 & 0 & NA & SPTSS & Iraq & 3 & 5 & 4 & NA & NA & NA & NA &
+NA & NA & NA & NA & 3 & 16 & 19 & 4 & 4 & M5 & Quality Rating: 4 &
+2.3342857 & NA & -0.76727761 \\
+4 & Bhat & 797 & 397 & 469 & 0.588 & 328 & 0.412 & 19.90 & 0.498 & NA &
+NA & 0 & NA & PCL-5 & India & 2 & 3 & 7 & 7.0 & 27.1 & NA & 0.0 & 16.1 &
+26.1 & 5.3 & NA & 2 & 19 & 24 & 6 & 7 & M3 & Quality Rating: 7 &
 4.7342857 & NA & 0.50478790 \\
-5 & Charak & 231 & 5 & 96 & 0.4160 & 135 & 0.5840 & 14.90 & 0.0220 & NA
-& NA & 1 & 0.0833333 & CPSS & Burundi & 1 & 6 & 9 & NA & NA & NA & NA &
-NA & NA & NA & NA & 1 & 12 & 21 & 9 & 9 & M6 & Quality Rating: 9 &
--0.2657143 & -3.6411111 & 1.35283158 \\
-6 & El-Khodary & 1029 & 551 & 496 & 0.4820 & 533 & 0.5180 & 13.71 &
-0.5350 & NA & NA & 1 & 1.0000000 & PTSDSS & Gaza Str & 4 & 7 & 6 & 83.7
-& NA & 88.3 & 88.4 & NA & NA & NA & NA & 2 & 11 & 17 & 7 & 6 & M7 &
-Quality Rating: 6 & -1.4557143 & -2.7244444 & 0.08076606 \\
-7 & Freh & 224 & 125 & 120 & 0.5360 & 104 & 0.4640 & 15.80 & 0.5580 &
-0.6451 & 0.4800 & 1 & 10.0000000 & PTSDSS & Iraq & 3 & 7 & 7 & NA & NA &
-NA & 28.7 & 57.4 & NA & NA & 13.7 & 2 & 12 & 23 & 7 & 7 & M7 & Quality
-Rating: 7 & 0.6342857 & 6.2755556 & 0.50478790 \\
-8 & Harb & 40 & 9 & 0 & 0.0000 & 40 & 1.0000 & 13.50 & 0.9000 & NA &
-0.1390 & 0 & NA & CRIES & Gaza Str & 4 & 1 & 3 & NA & NA & NA & NA & NA
-& NA & NA & NA & 3 & 12 & 16 & 3 & 3 & M1 & Quality Rating: 3 &
--1.6657143 & NA & -1.19129945 \\
-9 & Kakaje & 1369 & 726 & 723 & 0.5280 & NA & NA & 16.38 & 0.5300 & NA &
-NA & 1 & 9.0000000 & CRIES & Syria & 1 & 1 & 9 & NA & NA & NA & NA & NA
-& NA & NA & NA & 1 & 16 & 18 & 7 & 9 & M1 & Quality Rating: 9 &
+5 & Charak & 231 & 5 & 96 & 0.416 & 135 & 0.584 & 14.90 & 0.022 & NA &
+NA & 1 & 0.083 & CPSS & Burundi & 1 & 6 & 9 & NA & NA & NA & NA & NA &
+NA & NA & NA & 1 & 12 & 21 & 9 & 9 & M6 & Quality Rating: 9 & -0.2657143
+& -3.6411111 & 1.35283158 \\
+6 & El-Khodary & 1029 & 551 & 496 & 0.482 & 533 & 0.518 & 13.71 & 0.535
+& NA & NA & 1 & 1.000 & PTSDSS & Gaza Str & 4 & 7 & 6 & 83.7 & NA & 88.3
+& 88.4 & NA & NA & NA & NA & 2 & 11 & 17 & 7 & 6 & M7 & Quality Rating:
+6 & -1.4557143 & -2.7244444 & 0.08076606 \\
+7 & Freh & 224 & 125 & 120 & 0.536 & 104 & 0.464 & 15.80 & 0.558 & 0.645
+& 0.480 & 1 & 10.000 & PTSDSS & Iraq & 3 & 7 & 7 & NA & NA & NA & 28.7 &
+57.4 & NA & NA & 13.7 & 2 & 12 & 23 & 7 & 7 & M7 & Quality Rating: 7 &
+0.6342857 & 6.2755556 & 0.50478790 \\
+8 & Harb & 40 & 9 & 0 & 0.000 & 40 & 1.000 & 13.50 & 0.900 & NA & 0.139
+& 0 & NA & CRIES & Gaza Str & 4 & 1 & 3 & NA & NA & NA & NA & NA & NA &
+NA & NA & 3 & 12 & 16 & 3 & 3 & M1 & Quality Rating: 3 & -1.6657143 & NA
+& -1.19129945 \\
+9 & Kakaje & 1353 & 726 & 711 & 0.525 & 642 & 0.475 & 16.38 & 0.530 &
+0.428 & 0.643 & 1 & 9.000 & CRIES & Syria & 1 & 1 & 9 & NA & NA & NA &
+NA & NA & NA & NA & NA & 1 & 16 & 18 & 7 & 9 & M1 & Quality Rating: 9 &
 1.2142857 & 5.2755556 & 1.35283158 \\
-10 & Lavi & 2314 & 347 & 1120 & 0.4840 & 1194 & 0.5160 & 13.50 & 0.1500
-& NA & NA & 1 & 0.8333333 & CPTS-RI & Israel & 4 & 8 & 6 & NA & NA & NA
-& NA & NA & NA & NA & NA & 2 & 12 & 15 & 6 & 6 & M8 & Quality Rating: 6
-& -1.6657143 & -2.8911111 & 0.08076606 \\
-11 & Rivera & 102 & 13 & 40 & 0.3922 & 62 & 0.6078 & 14.61 & 0.1230 & NA
-& NA & 0 & NA & PCL-C & Colombia & 3 & 12 & 7 & NA & NA & NA & NA & NA &
+10 & Lavi & 2314 & 347 & 1120 & 0.484 & 1194 & 0.516 & 13.50 & 0.150 &
+NA & NA & 1 & 0.833 & CPTS-RI & Israel & 4 & 8 & 6 & NA & NA & NA & NA &
+NA & NA & NA & NA & 2 & 12 & 15 & 6 & 6 & M8 & Quality Rating: 6 &
+-1.6657143 & -2.8911111 & 0.08076606 \\
+11 & Rivera & 102 & 13 & 40 & 0.392 & 62 & 0.608 & 14.61 & 0.123 & NA &
+NA & 0 & NA & PCL-C & Colombia & 3 & 12 & 7 & NA & NA & NA & NA & NA &
 NA & NA & NA & 2 & 12 & 17 & 7 & 7 & M12 & Quality Rating: 7 &
 -0.5557143 & NA & 0.50478790 \\
-12 & Mels & 952 & 497 & 521 & 0.5470 & 431 & 0.4530 & 15.83 & 0.5220 &
-NA & NA & 0 & NA & IES-R & Congo & 2 & 10 & 6 & NA & NA & NA & NA & NA &
-NA & NA & NA & 2 & 13 & 21 & 5 & 6 & M10 & Quality Rating: 6 & 0.6642857
-& NA & 0.08076606 \\
-13 & Okello & 551 & 107 & 284 & 0.5150 & 267 & 0.4850 & 16.72 & 0.1950 &
-0.2020 & 0.1875 & 1 & 4.0000000 & IES-R & Uganda & 1 & 10 & 7 & NA & NA
-& NA & NA & NA & NA & NA & NA & 2 & 13 & 21 & 7 & 7 & M10 & Quality
-Rating: 7 & 1.5542857 & 0.2755556 & 0.50478790 \\
-14 & Osokina & 1463 & 78 & 693 & 0.4740 & 770 & 0.5260 & 13.00 & 0.0530
-& NA & NA & 0 & NA & HTQ & Ukraine & 2 & 11 & 9 & 60.2 & NA & NA & 13.9
-& NA & NA & NA & NA & 1 & 11 & 17 & 8 & 9 & M11 & Quality Rating: 9 &
+12 & Mels & 952 & 497 & 521 & 0.547 & 431 & 0.453 & 15.83 & 0.522 & NA &
+NA & 0 & NA & IES-R & Congo & 2 & 10 & 6 & NA & NA & NA & NA & NA & NA &
+NA & NA & 2 & 13 & 21 & 5 & 6 & M10 & Quality Rating: 6 & 0.6642857 & NA
+& 0.08076606 \\
+13 & Okello & 551 & 107 & 284 & 0.515 & 267 & 0.485 & 16.72 & 0.195 &
+0.202 & 0.188 & 1 & 4.000 & IES-R & Uganda & 1 & 10 & 7 & NA & NA & NA &
+NA & NA & NA & NA & NA & 2 & 13 & 21 & 7 & 7 & M10 & Quality Rating: 7 &
+1.5542857 & 0.2755556 & 0.50478790 \\
+14 & Osokina & 1463 & 78 & 693 & 0.474 & 770 & 0.526 & 13.00 & 0.053 &
+NA & NA & 0 & NA & HTQ & Ukraine & 2 & 11 & 9 & 60.2 & NA & NA & 13.9 &
+NA & NA & NA & NA & 1 & 11 & 17 & 8 & 9 & M11 & Quality Rating: 9 &
 -2.1657143 & NA & 1.35283158 \\
-15 & Pat-Horenczyk & 482 & 24 & 225 & 0.4670 & 230 & 0.4770 & 16.29 &
-0.0500 & NA & NA & 1 & 0.1666667 & UCLA-PTS & Israel & 4 & 2 & 3 & NA &
-NA & NA & NA & NA & NA & NA & NA & 3 & 12 & 18 & 3 & 3 & M2 & Quality
-Rating: 3 & 1.1242857 & -3.5577778 & -1.19129945 \\
-16 & Shaheen & 233 & 93 & 70 & 0.3004 & 163 & 0.6960 & 13.49 & 0.4000 &
-NA & NA & 0 & NA & UCLA-PTS & Israel & 4 & 2 & 3 & NA & NA & NA & NA &
-NA & NA & NA & NA & 3 & 11 & 16 & 5 & 3 & M2 & Quality Rating: 3 &
--1.6757143 & NA & -1.19129945 \\
-17 & Shoshani & 1078 & 308 & 536 & 0.4970 & 542 & 0.5030 & 13.73 &
-0.2860 & NA & NA & 0 & NA & UCLA-PTS & Gaza Str & 4 & 2 & 7 & 7.1 & NA &
-NA & 16.1 & 6.5 & NA & NA & 1.0 & 2 & 13 & 15 & 7 & 7 & M2 & Quality
-Rating: 7 & -1.4357143 & NA & 0.50478790 \\
-18 & Thabet & 358 & 107 & 158 & 0.4410 & 200 & 0.5590 & 16.70 & 0.2980 &
-NA & NA & 1 & 0.2500000 & UCLA-PTS & Gaza Str & 4 & 2 & 4 & 88.5 & NA &
-NA & NA & NA & NA & NA & NA & 3 & 15 & 18 & 4 & 4 & M2 & Quality Rating:
-4 & 1.5342857 & -3.4744444 & -0.76727761 \\
-19 & Uysal & 430 & 263 & 185 & 0.4300 & 245 & 0.5700 & 15.50 & 0.6120 &
-NA & NA & 1 & 4.7500000 & CRIES & Syria & 1 & 1 & 9 & NA & NA & NA & NA
-& NA & NA & NA & NA & 1 & 12 & 18 & 9 & 9 & M1 & Quality Rating: 9 &
-0.3342857 & 1.0255556 & 1.35283158 \\
-20 & Yilmaz & 119 & 8 & 43 & 0.3610 & 76 & 0.6390 & 13.50 & 0.0670 &
-0.0470 & 0.0790 & 1 & 3.8600000 & DSM-5 & Syria & 1 & 9 & 3 & NA & NA &
-NA & NA & NA & NA & NA & NA & 3 & 12 & 16 & 3 & 3 & M9 & Quality Rating:
-3 & -1.6657143 & 0.1355556 & -1.19129945 \\
-21 & Shehadeh & 314 & 145 & 169 & 0.5380 & 142 & 0.4520 & 13.37 & 0.4620
-& NA & NA & 0 & NA & UCLA-PTS & Israel & 4 & 2 & 5 & NA & NA & NA & NA &
+15 & Pat-Horenczyk & 482 & 24 & 225 & 0.467 & 230 & 0.477 & 16.29 &
+0.050 & NA & NA & 1 & 0.167 & UCLA-PTS & Israel & 4 & 2 & 3 & NA & NA &
+NA & NA & NA & NA & NA & NA & 3 & 12 & 18 & 3 & 3 & M2 & Quality Rating:
+3 & 1.1242857 & -3.5577778 & -1.19129945 \\
+16 & Shaheen & 233 & 93 & 70 & 0.300 & 163 & 0.696 & 13.49 & 0.400 & NA
+& NA & 0 & NA & UCLA-PTS & Israel & 4 & 2 & 3 & NA & NA & NA & NA & NA &
+NA & NA & NA & 3 & 11 & 16 & 5 & 3 & M2 & Quality Rating: 3 & -1.6757143
+& NA & -1.19129945 \\
+17 & Shoshani & 1078 & 308 & 536 & 0.497 & 542 & 0.503 & 13.73 & 0.286 &
+NA & NA & 0 & NA & UCLA-PTS & Gaza Str & 4 & 2 & 7 & 7.1 & NA & NA &
+16.1 & 6.5 & NA & NA & 1.0 & 2 & 13 & 15 & 7 & 7 & M2 & Quality Rating:
+7 & -1.4357143 & NA & 0.50478790 \\
+18 & Thabet & 358 & 107 & 158 & 0.441 & 200 & 0.559 & 16.70 & 0.298 & NA
+& NA & 1 & 0.250 & UCLA-PTS & Gaza Str & 4 & 2 & 4 & 88.5 & NA & NA & NA
+& NA & NA & NA & NA & 3 & 15 & 18 & 4 & 4 & M2 & Quality Rating: 4 &
+1.5342857 & -3.4744444 & -0.76727761 \\
+19 & Uysal & 430 & 263 & 185 & 0.430 & 245 & 0.570 & 15.50 & 0.612 & NA
+& NA & 1 & 4.750 & CRIES & Syria & 1 & 1 & 9 & NA & NA & NA & NA & NA &
+NA & NA & NA & 1 & 12 & 18 & 9 & 9 & M1 & Quality Rating: 9 & 0.3342857
+& 1.0255556 & 1.35283158 \\
+20 & Yilmaz & 119 & 8 & 43 & 0.361 & 76 & 0.639 & 13.50 & 0.067 & 0.047
+& 0.079 & 1 & 3.860 & DSM-5 & Syria & 1 & 9 & 3 & NA & NA & NA & NA & NA
+& NA & NA & NA & 3 & 12 & 16 & 3 & 3 & M9 & Quality Rating: 3 &
+-1.6657143 & 0.1355556 & -1.19129945 \\
+21 & Shehadeh & 314 & 145 & 169 & 0.538 & 142 & 0.452 & 13.37 & 0.462 &
+NA & NA & 0 & NA & UCLA-PTS & Israel & 4 & 2 & 5 & NA & NA & NA & NA &
 NA & NA & NA & NA & 2 & 11 & 18 & 5 & 5 & M2 & Quality Rating: 5 &
 -1.7957143 & NA & -0.34325578 \\
 \end{longtable}
@@ -774,21 +800,21 @@ moderations)}\label{r1-overall-prevalance-no-moderations}
 Random-Effects Model (k = 21; tau^2 estimator: ML)
 
   logLik  deviance       AIC       BIC      AICc   
--62.9218    0.7512  129.8436  131.9326  130.5102   
+-62.9144    0.7498  129.8287  131.9178  130.4954   
 
-tau^2 (estimated amount of total heterogeneity): 1.6743
-tau (square root of estimated tau^2 value):      1.2939
+tau^2 (estimated amount of total heterogeneity): 1.6768
+tau (square root of estimated tau^2 value):      1.2949
 I^2 (total heterogeneity / total variability):   99.44%
-H^2 (total variability / sampling variability):  178.00
+H^2 (total variability / sampling variability):  177.97
 
 Tests for Heterogeneity:
-Wld(df = 20) = 1919.8617, p-val < .0001
-LRT(df = 20) = 2737.3702, p-val < .0001
+Wld(df = 20) = 1928.4679, p-val < .0001
+LRT(df = 20) = 2748.8914, p-val < .0001
 
 Model Results:
 
 estimate      se     tval  df    pval    ci.lb    ci.ub     
- -0.8778  0.2853  -3.0764  20  0.0060  -1.4730  -0.2826  ** 
+ -0.8766  0.2855  -3.0700  20  0.0060  -1.4723  -0.2810  ** 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -811,7 +837,7 @@ to transform using the logit function below!
 \begin{verbatim}
 
     pred     se   ci.lb   ci.ub   pi.lb  pi.ub 
- -0.8778 0.2853 -1.4730 -0.2826 -3.6418 1.8862 
+ -0.8766 0.2855 -1.4723 -0.2810 -3.6427 1.8894 
 \end{verbatim}
 
 \paragraph{Prediction intervals on percentage
@@ -833,7 +859,7 @@ However the prediction intervals are very wide 95\% CI {[}.02, .84{]}.
 \begin{verbatim}
 
    pred  ci.lb  ci.ub  pi.lb  pi.ub 
- 0.2936 0.1865 0.4298 0.0255 0.8683 
+ 0.2939 0.1866 0.4302 0.0255 0.8687 
 \end{verbatim}
 
 \subsubsection{Forest Plot}\label{forest-plot}
@@ -913,6 +939,7 @@ log.odds.se
 Abu-Kaf & 65 & 53 & 108 & 83 & 0.2854205 & 0.1542495 \\
 Al-Hadethe & 248 & 144 & 155 & 101 & -0.3007141 & 0.0449793 \\
 Freh & 120 & 77 & 104 & 50 & 0.6595663 & 0.0747613 \\
+Kakaje & 711 & 304 & 642 & 413 & -0.8815111 & 0.0125346 \\
 Okello & 284 & 57 & 267 & 50 & 0.0859756 & 0.0465574 \\
 Yilmaz & 43 & 2 & 76 & 6 & -0.5636891 & 0.7053426 \\
 \end{longtable}
@@ -946,25 +973,25 @@ Yilmaz & 43 & 2 & 76 & 6 & -0.5636891 & 0.7053426 \\
 
 \begin{verbatim}
 
-Random-Effects Model (k = 5; tau^2 estimator: ML)
+Random-Effects Model (k = 6; tau^2 estimator: ML)
 Model Type: Conditional Model with Exact Likelihood
 
   logLik  deviance       AIC       BIC      AICc   
--13.8148    7.3367   31.6297   30.8485   37.6297   
+-20.5090   14.5067   45.0181   44.6016   49.0181   
 
-tau^2 (estimated amount of total heterogeneity): 0.0639 (SE = 0.0887)
-tau (square root of estimated tau^2 value):      0.2529
-I^2 (total heterogeneity / total variability):   43.26%
-H^2 (total variability / sampling variability):  1.76
+tau^2 (estimated amount of total heterogeneity): 0.2357 (SE = 0.1699)
+tau (square root of estimated tau^2 value):      0.4855
+I^2 (total heterogeneity / total variability):   81.56%
+H^2 (total variability / sampling variability):  5.42
 
 Tests for Heterogeneity:
-Wld(df = 4) = 8.5114, p-val = 0.0745
-LRT(df = 4) = 8.6796, p-val = 0.0696
+Wld(df = 5) = 41.4938, p-val < .0001
+LRT(df = 5) = 42.1029, p-val < .0001
 
 Model Results:
 
-estimate      se    tval  df    pval    ci.lb   ci.ub    
-  0.1042  0.1778  0.5862   4  0.5892  -0.3893  0.5977    
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -0.1162  0.2356  -0.4934   5  0.6426  -0.7218  0.4893    
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -979,7 +1006,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \begin{verbatim}
 
   pred ci.lb ci.ub pi.lb pi.ub 
- 1.110 0.678 1.818 0.470 2.618 
+ 0.890 0.486 1.631 0.222 3.564 
 \end{verbatim}
 
 \subsubsection{Forest Plot}\label{forest-plot-1}
@@ -1049,8 +1076,8 @@ slightly here in women across the studies, but the effect is not
 significant.
 
 \subsection{R3) Meta-Regressions - age, ongoing war, method of
-measurement, country income level (IN
-PROGRESS)}\label{r3-meta-regressions---age-ongoing-war-method-of-measurement-country-income-level-in-progress}
+measurement, country income
+level}\label{r3-meta-regressions---age-ongoing-war-method-of-measurement-country-income-level}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1123,7 +1150,16 @@ Warning: Some yi/vi values are NA.
   \AttributeTok{to =} \StringTok{"all"}\NormalTok{,}
   \AttributeTok{test =} \StringTok{"t"} \CommentTok{\# This is recommended here metafor/html/misc{-}recs.html}
 \NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
+\begin{verbatim}
+Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+Model failed to converge with max|grad| = 0.0021387 (tol = 0.002, component 1)
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \NormalTok{moderation\_models[[}\StringTok{"Economic"}\NormalTok{]] }\OtherTok{=} \FunctionTok{rma.glmm}\NormalTok{(}
   \AttributeTok{xi =} \StringTok{\textasciigrave{}}\AttributeTok{ptsd\_n}\StringTok{\textasciigrave{}}\NormalTok{, }
   \AttributeTok{ni =} \StringTok{\textasciigrave{}}\AttributeTok{participants}\StringTok{\textasciigrave{}}\NormalTok{, }
@@ -1279,12 +1315,12 @@ Warning: Some yi/vi values are NA.
 \toprule
 \multicolumn{1}{l}{} & QM & QMdf\_1 & QMdf\_2 & QMp & N Studies & N Participants \\ 
 \midrule\addlinespace[2.5pt]
-Age & $2.654$ & 1 & 19 & $0.120$ & 21 & 12914 \\ 
-War & $0.100$ & 1 & 19 & $0.755$ & 21 & 12914 \\ 
-Aftermath & $8.749$ & 1 & 10 & $0.014$ & 12 & 7532 \\ 
-Measure & $6.499$ & 11 & 9 & $0.005$ & 21 & 12914 \\ 
-Economic & $0.173$ & 3 & 17 & $0.913$ & 21 & 12914 \\ 
-Quality & $1.695$ & 6 & 14 & $0.195$ & 21 & 12914 \\ 
+Age & $2.661$ & 1 & 19 & $0.119$ & 21 & 12898 \\ 
+War & $0.097$ & 1 & 19 & $0.758$ & 21 & 12898 \\ 
+Aftermath & $8.812$ & 1 & 10 & $0.014$ & 12 & 7516 \\ 
+Measure & $6.492$ & 11 & 9 & $0.005$ & 21 & 12898 \\ 
+Economic & $0.172$ & 3 & 17 & $0.914$ & 21 & 12898 \\ 
+Quality & $1.685$ & 6 & 14 & $0.197$ & 21 & 12898 \\ 
 \bottomrule
 \end{longtable*}
 
@@ -1325,27 +1361,27 @@ Quality & $1.695$ & 6 & 14 & $0.195$ & 21 & 12914 \\
   \FunctionTok{gt}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{cols\_hide}\NormalTok{(}\StringTok{"model"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{tab\_row\_group}\NormalTok{(}
-    \AttributeTok{label =} \StringTok{"Ongoing / Aftermath War, F(df1 = 1, df2 = 19) = .43, p = .84"}\NormalTok{,}
+    \AttributeTok{label =} \StringTok{"Ongoing / Aftermath War, F(df1 = 1, df2 = 19) = .10, p = .76"}\NormalTok{,}
     \AttributeTok{rows =} \FunctionTok{which}\NormalTok{(model}\SpecialCharTok{==}\StringTok{"War"}\NormalTok{)}
 \NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
     \FunctionTok{tab\_row\_group}\NormalTok{(}
-    \AttributeTok{label =} \StringTok{"Mean Sample Age, F(df1 = 1, df2 = 19) = 2.95, p = .10"}\NormalTok{,}
+    \AttributeTok{label =} \StringTok{"Mean Sample Age, F(df1 = 1, df2 = 19) = 2.66, p = .12"}\NormalTok{,}
     \AttributeTok{rows =} \FunctionTok{which}\NormalTok{(model}\SpecialCharTok{==}\StringTok{"Age"}\NormalTok{)}
 \NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
     \FunctionTok{tab\_row\_group}\NormalTok{(}
-    \AttributeTok{label =} \StringTok{"PTSD Measure, F(df1 = 11, df2 = 9) = 5.64, p = .007"}\NormalTok{,}
+    \AttributeTok{label =} \StringTok{"PTSD Measure, F(df1 = 11, df2 = 9) = 6.49, p = .005"}\NormalTok{,}
     \AttributeTok{rows =} \FunctionTok{which}\NormalTok{(model}\SpecialCharTok{==}\StringTok{"Measure"}\NormalTok{)}
 \NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
     \FunctionTok{tab\_row\_group}\NormalTok{(}
-    \AttributeTok{label =} \StringTok{"Economic Index, F(df1 = 3, df2 = 17) = 0.21, p = .89"}\NormalTok{,}
+    \AttributeTok{label =} \StringTok{"Economic Index, F(df1 = 3, df2 = 17) = 0.17, p = .91"}\NormalTok{,}
     \AttributeTok{rows =} \FunctionTok{which}\NormalTok{(model}\SpecialCharTok{==}\StringTok{"Economic"}\NormalTok{)}
 \NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
     \FunctionTok{tab\_row\_group}\NormalTok{(}
-    \AttributeTok{label =} \StringTok{"Aftermath Length, F(df1 = 1, df2 = 10) = 8.75, p = .014"}\NormalTok{,}
+    \AttributeTok{label =} \StringTok{"Aftermath Length, F(df1 = 1, df2 = 10) = 8.81, p = .014"}\NormalTok{,}
     \AttributeTok{rows =} \FunctionTok{which}\NormalTok{(model}\SpecialCharTok{==}\StringTok{"Aftermath"}\NormalTok{)}
 \NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{tab\_row\_group}\NormalTok{(}
-    \AttributeTok{label =} \StringTok{"Quality Assessment, F(df1 = 6, df2 = 14) = 1.87, p = .16"}\NormalTok{,}
+    \AttributeTok{label =} \StringTok{"Quality Assessment, F(df1 = 6, df2 = 14) = 1.69, p = .20"}\NormalTok{,}
     \AttributeTok{rows =} \FunctionTok{which}\NormalTok{(model}\SpecialCharTok{==}\StringTok{"Quality"}\NormalTok{)}
 \NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
    \FunctionTok{fmt\_percent}\NormalTok{(}
@@ -1371,52 +1407,52 @@ Quality & $1.695$ & 6 & 14 & $0.195$ & 21 & 12914 \\
 \toprule
 group & b & ci.lb & ci.ub \\ 
 \midrule\addlinespace[2.5pt]
-\multicolumn{4}{l}{Quality Assessment, F(df1 = 6, df2 = 14) = 1.87, p = .16} \\ 
+\multicolumn{4}{l}{Quality Assessment, F(df1 = 6, df2 = 14) = 1.69, p = .20} \\ 
 \midrule\addlinespace[2.5pt]
-Quality Rating: 1 & 79.4% & 27.8% & 97.5% \\ 
-Quality Rating: 3 & 13.9% & 4.76% & 34.4% \\ 
+Quality Rating: 1 & 79.4% & 27.7% & 97.5% \\ 
+Quality Rating: 3 & 13.9% & 4.75% & 34.4% \\ 
 Quality Rating: 4 & 45% & 14% & 80.4% \\ 
-Quality Rating: 5 & 46.2% & 8.08% & 89.3% \\ 
+Quality Rating: 5 & 46.2% & 8.05% & 89.4% \\ 
 Quality Rating: 6 & 37.7% & 14% & 69.2% \\ 
 Quality Rating: 7 & 31.7% & 15.4% & 54.2% \\ 
-Quality Rating: 9 & 18.8% & 6.79% & 42.3% \\ 
+Quality Rating: 9 & 18.9% & 6.82% & 42.5% \\ 
 \midrule\addlinespace[2.5pt]
-\multicolumn{4}{l}{Aftermath Length, F(df1 = 1, df2 = 10) = 8.75, p = .014} \\ 
+\multicolumn{4}{l}{Aftermath Length, F(df1 = 1, df2 = 10) = 8.81, p = .014} \\ 
 \midrule\addlinespace[2.5pt]
-Intercept & b = -.95 & b = -1.68 & b = -.23 \\ 
-aftermath\_centered & b =  .25 & b =  .06 & b =  .45 \\ 
+Intercept & b = -.95 & b = -1.67 & b = -.23 \\ 
+aftermath\_centered & b =  .26 & b =  .06 & b =  .45 \\ 
 \midrule\addlinespace[2.5pt]
-\multicolumn{4}{l}{Economic Index, F(df1 = 3, df2 = 17) = 0.21, p = .89} \\ 
+\multicolumn{4}{l}{Economic Index, F(df1 = 3, df2 = 17) = 0.17, p = .91} \\ 
 \midrule\addlinespace[2.5pt]
-1 & 27.9% & 11.2% & 54.2% \\ 
-2 & 29.9% & 9.96% & 62.3% \\ 
+1 & 28% & 11.2% & 54.3% \\ 
+2 & 29.9% & 9.95% & 62.3% \\ 
 3 & 40.1% & 12.2% & 76.4% \\ 
 4 & 26.6% & 12.2% & 48.7% \\ 
 \midrule\addlinespace[2.5pt]
-\multicolumn{4}{l}{PTSD Measure, F(df1 = 11, df2 = 9) = 5.64, p = .007} \\ 
+\multicolumn{4}{l}{PTSD Measure, F(df1 = 11, df2 = 9) = 6.49, p = .005} \\ 
 \midrule\addlinespace[2.5pt]
-CBCL & 79.3% & 49.3% & 93.8% \\ 
-CPSS & 2.04% & 0.39% & 9.98% \\ 
-CPTS-RI & 15% & 4.52% & 39.6% \\ 
-CRIES & 43.7% & 28.1% & 60.7% \\ 
+CBCL & 79.3% & 49.2% & 93.8% \\ 
+CPSS & 2.04% & 0.389% & 9.99% \\ 
+CPTS-RI & 15% & 4.51% & 39.7% \\ 
+CRIES & 43.9% & 28.2% & 60.9% \\ 
 DSM-5 & 6.47% & 1.44% & 24.7% \\ 
-HTQ & 5.3% & 1.45% & 17.5% \\ 
-IES-R & 34.1% & 16.8% & 56.8% \\ 
+HTQ & 5.3% & 1.45% & 17.6% \\ 
+IES-R & 34.1% & 16.8% & 56.9% \\ 
 PCL-5 & 49.8% & 21% & 78.8% \\ 
-PCL-C & 12.5% & 3.16% & 38.3% \\ 
-PTSDSS & 54.7% & 32% & 75.5% \\ 
-SPTSS & 61.1% & 29.4% & 85.6% \\ 
+PCL-C & 12.5% & 3.15% & 38.4% \\ 
+PTSDSS & 54.7% & 32% & 75.6% \\ 
+SPTSS & 61.1% & 29.3% & 85.6% \\ 
 UCLA-PTS & 26.2% & 16.3% & 39.3% \\ 
 \midrule\addlinespace[2.5pt]
-\multicolumn{4}{l}{Mean Sample Age, F(df1 = 1, df2 = 19) = 2.95, p = .10} \\ 
+\multicolumn{4}{l}{Mean Sample Age, F(df1 = 1, df2 = 19) = 2.66, p = .12} \\ 
 \midrule\addlinespace[2.5pt]
 Intercept & b = -.88 & b = -1.44 & b = -.32 \\ 
 age\_centered & b =  .26 & b = -.07 & b =  .59 \\ 
 \midrule\addlinespace[2.5pt]
-\multicolumn{4}{l}{Ongoing / Aftermath War, F(df1 = 1, df2 = 19) = .43, p = .84} \\ 
+\multicolumn{4}{l}{Ongoing / Aftermath War, F(df1 = 1, df2 = 19) = .10, p = .76} \\ 
 \midrule\addlinespace[2.5pt]
 Ongoing War & 31.6% & 15.7% & 53.4% \\ 
-Aftermath & 27.8% & 14.9% & 45.8% \\ 
+Aftermath & 27.8% & 14.9% & 45.9% \\ 
 \bottomrule
 \end{longtable*}
 
@@ -1536,23 +1572,23 @@ $Age
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.4794
-tau (square root of estimated tau^2 value):             1.2163
+tau^2 (estimated amount of residual heterogeneity):     1.4812
+tau (square root of estimated tau^2 value):             1.2171
 I^2 (residual heterogeneity / unaccounted variability): 99.33%
-H^2 (unaccounted variability / sampling variability):   150.26
+H^2 (unaccounted variability / sampling variability):   150.18
 
 Tests for Residual Heterogeneity:
-Wld(df = 19) = 1562.4196, p-val < .0001
-LRT(df = 19) = 2117.5122, p-val < .0001
+Wld(df = 19) = 1568.4312, p-val < .0001
+LRT(df = 19) = 2125.3496, p-val < .0001
 
 Test of Moderators (coefficient 2):
-F(df1 = 1, df2 = 19) = 2.6540, p-val = 0.1198
+F(df1 = 1, df2 = 19) = 2.6613, p-val = 0.1193
 
 Model Results:
 
               estimate      se     tval  df    pval    ci.lb    ci.ub     
-intrcpt        -0.8787  0.2686  -3.2720  19  0.0040  -1.4409  -0.3166  ** 
-age_centered    0.2563  0.1573   1.6291  19  0.1198  -0.0730   0.5856     
+intrcpt        -0.8775  0.2687  -3.2656  19  0.0041  -1.4400  -0.3151  ** 
+age_centered    0.2568  0.1574   1.6314  19  0.1193  -0.0727   0.5863     
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1562,23 +1598,23 @@ $War
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.6676
-tau (square root of estimated tau^2 value):             1.2914
+tau^2 (estimated amount of residual heterogeneity):     1.6703
+tau (square root of estimated tau^2 value):             1.2924
 I^2 (residual heterogeneity / unaccounted variability): 99.41%
-H^2 (unaccounted variability / sampling variability):   169.49
+H^2 (unaccounted variability / sampling variability):   169.50
 
 Tests for Residual Heterogeneity:
-Wld(df = 19) = 1916.8994, p-val < .0001
-LRT(df = 19) = 2737.3428, p-val < .0001
+Wld(df = 19) = 1925.8476, p-val < .0001
+LRT(df = 19) = 2748.8847, p-val < .0001
 
 Test of Moderators (coefficient 2):
-F(df1 = 1, df2 = 19) = 0.0999, p-val = 0.7554
+F(df1 = 1, df2 = 19) = 0.0975, p-val = 0.7583
 
 Model Results:
 
          estimate      se     tval  df    pval    ci.lb   ci.ub    
-intrcpt   -0.7739  0.4346  -1.7807  19  0.0910  -1.6836  0.1357  . 
-war       -0.1818  0.5752  -0.3161  19  0.7554  -1.3858  1.0221    
+intrcpt   -0.7739  0.4350  -1.7793  19  0.0912  -1.6843  0.1365  . 
+war       -0.1797  0.5757  -0.3122  19  0.7583  -1.3846  1.0252    
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1588,23 +1624,23 @@ $Aftermath
 
 Mixed-Effects Model (k = 12; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.2281
-tau (square root of estimated tau^2 value):             1.1082
+tau^2 (estimated amount of residual heterogeneity):     1.2269
+tau (square root of estimated tau^2 value):             1.1077
 I^2 (residual heterogeneity / unaccounted variability): 99.07%
-H^2 (unaccounted variability / sampling variability):   107.33
+H^2 (unaccounted variability / sampling variability):   107.16
 
 Tests for Residual Heterogeneity:
-Wld(df = 10) = 814.4552, p-val < .0001
-LRT(df = 10) = 972.6039, p-val < .0001
+Wld(df = 10) = 812.6601, p-val < .0001
+LRT(df = 10) = 970.4799, p-val < .0001
 
 Test of Moderators (coefficient 2):
-F(df1 = 1, df2 = 10) = 8.7495, p-val = 0.0143
+F(df1 = 1, df2 = 10) = 8.8124, p-val = 0.0141
 
 Model Results:
 
                     estimate      se     tval  df    pval    ci.lb    ci.ub    
-intrcpt              -0.9534  0.3248  -2.9352  10  0.0149  -1.6771  -0.2297  * 
-aftermath_centered    0.2543  0.0860   2.9580  10  0.0143   0.0627   0.4459  * 
+intrcpt              -0.9512  0.3246  -2.9300  10  0.0150  -1.6746  -0.2278  * 
+aftermath_centered    0.2551  0.0859   2.9686  10  0.0141   0.0636   0.4466  * 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1614,33 +1650,33 @@ $Measure
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     0.3343
-tau (square root of estimated tau^2 value):             0.5782
+tau^2 (estimated amount of residual heterogeneity):     0.3352
+tau (square root of estimated tau^2 value):             0.5790
 I^2 (residual heterogeneity / unaccounted variability): 96.68%
-H^2 (unaccounted variability / sampling variability):   30.08
+H^2 (unaccounted variability / sampling variability):   30.13
 
 Tests for Residual Heterogeneity:
-Wld(df = 9) = 348.4233, p-val < .0001
-LRT(df = 9) = 457.2590, p-val < .0001
+Wld(df = 9) = 349.0720, p-val < .0001
+LRT(df = 9) = 458.0444, p-val < .0001
 
 Test of Moderators (coefficients 2:12):
-F(df1 = 11, df2 = 9) = 6.4987, p-val = 0.0045
+F(df1 = 11, df2 = 9) = 6.4915, p-val = 0.0045
 
 Model Results:
 
                  estimate      se     tval  df    pval    ci.lb    ci.ub      
-intrcpt            1.3454  0.6081   2.2125   9  0.0542  -0.0302   2.7209    . 
-measureCPSS       -5.2167  0.9572  -5.4497   9  0.0004  -7.3822  -3.0513  *** 
-measureCPTS-RI    -3.0816  0.8411  -3.6638   9  0.0052  -4.9844  -1.1789   ** 
-measureCRIES      -1.5973  0.6797  -2.3500   9  0.0433  -3.1349  -0.0597    * 
-measureDSM-5      -4.0170  0.9178  -4.3769   9  0.0018  -6.0932  -1.9409   ** 
-measureHTQ        -4.2278  0.8472  -4.9906   9  0.0007  -6.1442  -2.3114  *** 
-measureIES-R      -2.0057  0.7354  -2.7274   9  0.0233  -3.6693  -0.3421    * 
-measurePCL-5      -1.3527  0.8421  -1.6064   9  0.1427  -3.2576   0.5522      
-measurePCL-C      -3.2948  0.8912  -3.6970   9  0.0049  -5.3109  -1.2787   ** 
-measurePTSDSS     -1.1581  0.7364  -1.5725   9  0.1503  -2.8240   0.5079      
-measureSPTSS      -0.8950  0.8453  -1.0588   9  0.3173  -2.8072   1.0172      
-measureUCLA-PTS   -2.3789  0.6634  -3.5861   9  0.0059  -3.8795  -0.8782   ** 
+intrcpt            1.3458  0.6088   2.2105   9  0.0544  -0.0315   2.7230    . 
+measureCPSS       -5.2174  0.9582  -5.4449   9  0.0004  -7.3851  -3.0498  *** 
+measureCPTS-RI    -3.0812  0.8422  -3.6585   9  0.0052  -4.9864  -1.1760   ** 
+measureCRIES      -1.5910  0.6806  -2.3378   9  0.0442  -3.1305  -0.0515    * 
+measureDSM-5      -4.0174  0.9188  -4.3725   9  0.0018  -6.0958  -1.9389   ** 
+measureHTQ        -4.2283  0.8483  -4.9847   9  0.0008  -6.1472  -2.3094  *** 
+measureIES-R      -2.0067  0.7363  -2.7253   9  0.0234  -3.6724  -0.3410    * 
+measurePCL-5      -1.3535  0.8432  -1.6053   9  0.1429  -3.2609   0.5539      
+measurePCL-C      -3.2958  0.8923  -3.6937   9  0.0050  -5.3142  -1.2773   ** 
+measurePTSDSS     -1.1583  0.7374  -1.5709   9  0.1507  -2.8264   0.5098      
+measureSPTSS      -0.8954  0.8464  -1.0579   9  0.3177  -2.8100   1.0193      
+measureUCLA-PTS   -2.3792  0.6642  -3.5822   9  0.0059  -3.8817  -0.8767   ** 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1650,25 +1686,25 @@ $Economic
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.6317
-tau (square root of estimated tau^2 value):             1.2774
+tau^2 (estimated amount of residual heterogeneity):     1.6344
+tau (square root of estimated tau^2 value):             1.2784
 I^2 (residual heterogeneity / unaccounted variability): 99.36%
-H^2 (unaccounted variability / sampling variability):   155.09
+H^2 (unaccounted variability / sampling variability):   155.24
 
 Tests for Residual Heterogeneity:
-Wld(df = 17) = 1606.0949, p-val < .0001
-LRT(df = 17) = 2379.7443, p-val < .0001
+Wld(df = 17) = 1609.1543, p-val < .0001
+LRT(df = 17) = 2385.8758, p-val < .0001
 
 Test of Moderators (coefficients 2:4):
-F(df1 = 3, df2 = 17) = 0.1731, p-val = 0.9131
+F(df1 = 3, df2 = 17) = 0.1720, p-val = 0.9138
 
 Model Results:
 
                     estimate      se     tval  df    pval    ci.lb   ci.ub    
-intrcpt              -0.9506  0.5306  -1.7914  17  0.0911  -2.0701  0.1690  . 
-factor(econindex)2    0.1005  0.8319   0.1208  17  0.9053  -1.6546  1.8555    
-factor(econindex)3    0.5495  0.9153   0.6003  17  0.5562  -1.3816  2.4806    
-factor(econindex)4   -0.0640  0.6994  -0.0915  17  0.9282  -1.5396  1.4116    
+intrcpt              -0.9463  0.5311  -1.7820  17  0.0926  -2.0668  0.1741  . 
+factor(econindex)2    0.0962  0.8325   0.1156  17  0.9093  -1.6603  1.8527    
+factor(econindex)3    0.5452  0.9160   0.5952  17  0.5596  -1.3875  2.4779    
+factor(econindex)4   -0.0682  0.7000  -0.0974  17  0.9235  -1.5450  1.4086    
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1678,36 +1714,36 @@ $Quality
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.1154
-tau (square root of estimated tau^2 value):             1.0561
-I^2 (residual heterogeneity / unaccounted variability): 99.11%
-H^2 (unaccounted variability / sampling variability):   112.72
+tau^2 (estimated amount of residual heterogeneity):     1.1194
+tau (square root of estimated tau^2 value):             1.0580
+I^2 (residual heterogeneity / unaccounted variability): 99.12%
+H^2 (unaccounted variability / sampling variability):   113.05
 
 Tests for Residual Heterogeneity:
-Wld(df = 14) = 1701.1707, p-val < .0001
-LRT(df = 14) = 2346.4420, p-val < .0001
+Wld(df = 14) = 1707.2979, p-val < .0001
+LRT(df = 14) = 2359.0748, p-val < .0001
 
 Test of Moderators (coefficients 2:7):
-F(df1 = 6, df2 = 14) = 1.6951, p-val = 0.1947
+F(df1 = 6, df2 = 14) = 1.6850, p-val = 0.1972
 
 Model Results:
 
                                            estimate      se     tval  df 
-intrcpt                                      1.3464  1.0727   1.2551  14 
-qualityassessment_factorQuality Rating: 3   -3.1678  1.2044  -2.6302  14 
-qualityassessment_factorQuality Rating: 4   -1.5481  1.3094  -1.1823  14 
-qualityassessment_factorQuality Rating: 5   -1.5000  1.5096  -0.9936  14 
-qualityassessment_factorQuality Rating: 6   -1.8486  1.2344  -1.4975  14 
-qualityassessment_factorQuality Rating: 7   -2.1142  1.1578  -1.8261  14 
-qualityassessment_factorQuality Rating: 9   -2.8109  1.2003  -2.3418  14 
+intrcpt                                      1.3465  1.0747   1.2529  14 
+qualityassessment_factorQuality Rating: 3   -3.1678  1.2065  -2.6256  14 
+qualityassessment_factorQuality Rating: 4   -1.5481  1.3117  -1.1803  14 
+qualityassessment_factorQuality Rating: 5   -1.5001  1.5123  -0.9919  14 
+qualityassessment_factorQuality Rating: 6   -1.8485  1.2367  -1.4948  14 
+qualityassessment_factorQuality Rating: 7   -2.1143  1.1599  -1.8229  14 
+qualityassessment_factorQuality Rating: 9   -2.8047  1.2025  -2.3325  14 
                                              pval    ci.lb    ci.ub    
-intrcpt                                    0.2300  -0.9544   3.6472    
-qualityassessment_factorQuality Rating: 3  0.0198  -5.7509  -0.5846  * 
-qualityassessment_factorQuality Rating: 4  0.2568  -4.3564   1.2602    
-qualityassessment_factorQuality Rating: 5  0.3373  -4.7379   1.7379    
-qualityassessment_factorQuality Rating: 6  0.1565  -4.4962   0.7990    
-qualityassessment_factorQuality Rating: 7  0.0892  -4.5975   0.3690  . 
-qualityassessment_factorQuality Rating: 9  0.0345  -5.3854  -0.2365  * 
+intrcpt                                    0.2308  -0.9585   3.6514    
+qualityassessment_factorQuality Rating: 3  0.0200  -5.7556  -0.5801  * 
+qualityassessment_factorQuality Rating: 4  0.2576  -4.3615   1.2652    
+qualityassessment_factorQuality Rating: 5  0.3381  -4.7437   1.7435    
+qualityassessment_factorQuality Rating: 6  0.1572  -4.5009   0.8038    
+qualityassessment_factorQuality Rating: 7  0.0897  -4.6020   0.3734  . 
+qualityassessment_factorQuality Rating: 9  0.0351  -5.3838  -0.2257  * 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1726,23 +1762,23 @@ $Age
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.4794
-tau (square root of estimated tau^2 value):             1.2163
+tau^2 (estimated amount of residual heterogeneity):     1.4812
+tau (square root of estimated tau^2 value):             1.2171
 I^2 (residual heterogeneity / unaccounted variability): 99.33%
-H^2 (unaccounted variability / sampling variability):   150.26
+H^2 (unaccounted variability / sampling variability):   150.18
 
 Tests for Residual Heterogeneity:
-Wld(df = 19) = 1562.4196, p-val < .0001
-LRT(df = 19) = 2117.5122, p-val < .0001
+Wld(df = 19) = 1568.4312, p-val < .0001
+LRT(df = 19) = 2125.3496, p-val < .0001
 
 Test of Moderators (coefficient 2):
-F(df1 = 1, df2 = 19) = 2.6540, p-val = 0.1198
+F(df1 = 1, df2 = 19) = 2.6613, p-val = 0.1193
 
 Model Results:
 
               estimate      se     tval  df    pval    ci.lb    ci.ub     
-intrcpt        -0.8787  0.2686  -3.2720  19  0.0040  -1.4409  -0.3166  ** 
-age_centered    0.2563  0.1573   1.6291  19  0.1198  -0.0730   0.5856     
+intrcpt        -0.8775  0.2687  -3.2656  19  0.0041  -1.4400  -0.3151  ** 
+age_centered    0.2568  0.1574   1.6314  19  0.1193  -0.0727   0.5863     
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1752,23 +1788,23 @@ $War
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.6676
-tau (square root of estimated tau^2 value):             1.2914
+tau^2 (estimated amount of residual heterogeneity):     1.6704
+tau (square root of estimated tau^2 value):             1.2924
 I^2 (residual heterogeneity / unaccounted variability): 99.41%
-H^2 (unaccounted variability / sampling variability):   169.49
+H^2 (unaccounted variability / sampling variability):   169.50
 
 Tests for Residual Heterogeneity:
-Wld(df = 19) = 1916.8994, p-val < .0001
-LRT(df = 19) = 2737.3428, p-val < .0001
+Wld(df = 19) = 1925.8476, p-val < .0001
+LRT(df = 19) = 2748.8847, p-val < .0001
 
 Test of Moderators (coefficients 1:2):
-F(df1 = 2, df2 = 19) = 4.7995, p-val = 0.0206
+F(df1 = 2, df2 = 19) = 4.7778, p-val = 0.0208
 
 Model Results:
 
               estimate      se     tval  df    pval    ci.lb    ci.ub    
-factor(war)0   -0.7739  0.4346  -1.7807  19  0.0910  -1.6836   0.1357  . 
-factor(war)1   -0.9557  0.3769  -2.5357  19  0.0202  -1.7446  -0.1669  * 
+factor(war)0   -0.7739  0.4350  -1.7793  19  0.0912  -1.6843   0.1365  . 
+factor(war)1   -0.9536  0.3772  -2.5281  19  0.0205  -1.7432  -0.1641  * 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1778,23 +1814,23 @@ $Aftermath
 
 Mixed-Effects Model (k = 12; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.2281
-tau (square root of estimated tau^2 value):             1.1082
+tau^2 (estimated amount of residual heterogeneity):     1.2269
+tau (square root of estimated tau^2 value):             1.1077
 I^2 (residual heterogeneity / unaccounted variability): 99.07%
-H^2 (unaccounted variability / sampling variability):   107.33
+H^2 (unaccounted variability / sampling variability):   107.16
 
 Tests for Residual Heterogeneity:
-Wld(df = 10) = 814.4552, p-val < .0001
-LRT(df = 10) = 972.6039, p-val < .0001
+Wld(df = 10) = 812.6601, p-val < .0001
+LRT(df = 10) = 970.4799, p-val < .0001
 
 Test of Moderators (coefficient 2):
-F(df1 = 1, df2 = 10) = 8.7495, p-val = 0.0143
+F(df1 = 1, df2 = 10) = 8.8124, p-val = 0.0141
 
 Model Results:
 
                     estimate      se     tval  df    pval    ci.lb    ci.ub    
-intrcpt              -0.9534  0.3248  -2.9352  10  0.0149  -1.6771  -0.2297  * 
-aftermath_centered    0.2543  0.0860   2.9580  10  0.0143   0.0627   0.4459  * 
+intrcpt              -0.9512  0.3246  -2.9300  10  0.0150  -1.6746  -0.2278  * 
+aftermath_centered    0.2551  0.0859   2.9686  10  0.0141   0.0636   0.4466  * 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1804,33 +1840,33 @@ $Measure
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     0.3343
-tau (square root of estimated tau^2 value):             0.5782
+tau^2 (estimated amount of residual heterogeneity):     0.3353
+tau (square root of estimated tau^2 value):             0.5790
 I^2 (residual heterogeneity / unaccounted variability): 96.68%
-H^2 (unaccounted variability / sampling variability):   30.08
+H^2 (unaccounted variability / sampling variability):   30.13
 
 Tests for Residual Heterogeneity:
-Wld(df = 9) = 348.4233, p-val < .0001
-LRT(df = 9) = 457.2590, p-val < .0001
+Wld(df = 9) = 349.0720, p-val < .0001
+LRT(df = 9) = 458.0444, p-val < .0001
 
 Test of Moderators (coefficients 1:12):
-F(df1 = 12, df2 = 9) = 9.0307, p-val = 0.0013
+F(df1 = 12, df2 = 9) = 9.0070, p-val = 0.0013
 
 Model Results:
 
                  estimate      se     tval  df    pval    ci.lb    ci.ub      
-measureCBCL        1.3457  0.6081   2.2131   9  0.0542  -0.0299   2.7212    . 
-measureCPSS       -3.8717  0.7393  -5.2369   9  0.0005  -5.5441  -2.1993  *** 
-measureCPTS-RI    -1.7362  0.5811  -2.9876   9  0.0153  -3.0508  -0.4216    * 
-measureCRIES      -0.2517  0.3037  -0.8288   9  0.4286  -0.9388   0.4353      
-measureDSM-5      -2.6715  0.6874  -3.8863   9  0.0037  -4.2266  -1.1165   ** 
-measureHTQ        -2.8827  0.5899  -4.8870   9  0.0009  -4.2170  -1.5483  *** 
-measureIES-R      -0.6608  0.4136  -1.5977   9  0.1446  -1.5964   0.2748      
-measurePCL-5      -0.0075  0.5825  -0.0129   9  0.9900  -1.3253   1.3103      
-measurePCL-C      -1.9499  0.6515  -2.9927   9  0.0151  -3.4238  -0.4760    * 
-measurePTSDSS      0.1872  0.4155   0.4506   9  0.6630  -0.7526   1.1270      
-measureSPTSS       0.4503  0.5872   0.7669   9  0.4628  -0.8780   1.7786      
-measureUCLA-PTS   -1.0335  0.2651  -3.8981   9  0.0036  -1.6332  -0.4337   ** 
+measureCBCL        1.3459  0.6088   2.2106   9  0.0544  -0.0314   2.7232    . 
+measureCPSS       -3.8717  0.7400  -5.2323   9  0.0005  -5.5456  -2.1978  *** 
+measureCPTS-RI    -1.7362  0.5819  -2.9835   9  0.0154  -3.0526  -0.4198    * 
+measureCRIES      -0.2452  0.3041  -0.8061   9  0.4409  -0.9331   0.4428      
+measureDSM-5      -2.6715  0.6881  -3.8825   9  0.0037  -4.2281  -1.1149   ** 
+measureHTQ        -2.8826  0.5907  -4.8804   9  0.0009  -4.2188  -1.5465  *** 
+measureIES-R      -0.6610  0.4142  -1.5959   9  0.1450  -1.5979   0.2759      
+measurePCL-5      -0.0076  0.5833  -0.0130   9  0.9899  -1.3272   1.3120      
+measurePCL-C      -1.9498  0.6523  -2.9892   9  0.0152  -3.4253  -0.4742    * 
+measurePTSDSS      0.1873  0.4160   0.4502   9  0.6632  -0.7538   1.1284      
+measureSPTSS       0.4502  0.5880   0.7657   9  0.4635  -0.8799   1.7803      
+measureUCLA-PTS   -1.0335  0.2655  -3.8929   9  0.0037  -1.6340  -0.4329   ** 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1840,25 +1876,25 @@ $Economic
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.6317
-tau (square root of estimated tau^2 value):             1.2774
+tau^2 (estimated amount of residual heterogeneity):     1.6343
+tau (square root of estimated tau^2 value):             1.2784
 I^2 (residual heterogeneity / unaccounted variability): 99.36%
-H^2 (unaccounted variability / sampling variability):   155.08
+H^2 (unaccounted variability / sampling variability):   155.24
 
 Tests for Residual Heterogeneity:
-Wld(df = 17) = 1606.0949, p-val < .0001
-LRT(df = 17) = 2379.7443, p-val < .0001
+Wld(df = 17) = 1609.1543, p-val < .0001
+LRT(df = 17) = 2385.8758, p-val < .0001
 
 Test of Moderators (coefficients 1:4):
-F(df1 = 4, df2 = 17) = 2.5532, p-val = 0.0768
+F(df1 = 4, df2 = 17) = 2.5422, p-val = 0.0777
 
 Model Results:
 
                     estimate      se     tval  df    pval    ci.lb    ci.ub    
-factor(econindex)1   -0.9506  0.5306  -1.7913  17  0.0911  -2.0701   0.1690  . 
-factor(econindex)2   -0.8501  0.6406  -1.3269  17  0.2021  -2.2017   0.5015    
-factor(econindex)3   -0.4011  0.7459  -0.5377  17  0.5977  -1.9749   1.1727    
-factor(econindex)4   -1.0145  0.4557  -2.2263  17  0.0398  -1.9760  -0.0531  * 
+factor(econindex)1   -0.9463  0.5311  -1.7819  17  0.0926  -2.0668   0.1741  . 
+factor(econindex)2   -0.8501  0.6412  -1.3259  17  0.2024  -2.2028   0.5026    
+factor(econindex)3   -0.4012  0.7465  -0.5374  17  0.5980  -1.9762   1.1739    
+factor(econindex)4   -1.0146  0.4561  -2.2246  17  0.0399  -1.9768  -0.0523  * 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1868,36 +1904,36 @@ $Quality
 
 Mixed-Effects Model (k = 21; tau^2 estimator: ML)
 
-tau^2 (estimated amount of residual heterogeneity):     1.1154
-tau (square root of estimated tau^2 value):             1.0561
-I^2 (residual heterogeneity / unaccounted variability): 99.11%
-H^2 (unaccounted variability / sampling variability):   112.72
+tau^2 (estimated amount of residual heterogeneity):     1.1194
+tau (square root of estimated tau^2 value):             1.0580
+I^2 (residual heterogeneity / unaccounted variability): 99.12%
+H^2 (unaccounted variability / sampling variability):   113.05
 
 Tests for Residual Heterogeneity:
-Wld(df = 14) = 1701.1707, p-val < .0001
-LRT(df = 14) = 2346.4420, p-val < .0001
+Wld(df = 14) = 1707.2979, p-val < .0001
+LRT(df = 14) = 2359.0748, p-val < .0001
 
 Test of Moderators (coefficients 1:7):
-F(df1 = 7, df2 = 14) = 3.4147, p-val = 0.0241
+F(df1 = 7, df2 = 14) = 3.3943, p-val = 0.0246
 
 Model Results:
 
                                            estimate      se     tval  df 
-qualityassessment_factorQuality Rating: 1    1.3463  1.0728   1.2550  14 
-qualityassessment_factorQuality Rating: 3   -1.8214  0.5475  -3.3265  14 
-qualityassessment_factorQuality Rating: 4   -0.2017  0.7508  -0.2686  14 
-qualityassessment_factorQuality Rating: 5   -0.1537  1.0622  -0.1447  14 
-qualityassessment_factorQuality Rating: 6   -0.5021  0.6108  -0.8220  14 
-qualityassessment_factorQuality Rating: 7   -0.7678  0.4356  -1.7627  14 
-qualityassessment_factorQuality Rating: 9   -1.4646  0.5385  -2.7196  14 
+qualityassessment_factorQuality Rating: 1    1.3464  1.0746   1.2529  14 
+qualityassessment_factorQuality Rating: 3   -1.8214  0.5484  -3.3211  14 
+qualityassessment_factorQuality Rating: 4   -0.2017  0.7521  -0.2681  14 
+qualityassessment_factorQuality Rating: 5   -0.1537  1.0641  -0.1444  14 
+qualityassessment_factorQuality Rating: 6   -0.5021  0.6119  -0.8205  14 
+qualityassessment_factorQuality Rating: 7   -0.7679  0.4364  -1.7597  14 
+qualityassessment_factorQuality Rating: 9   -1.4583  0.5395  -2.7033  14 
                                              pval    ci.lb    ci.ub     
-qualityassessment_factorQuality Rating: 1  0.2300  -0.9546   3.6472     
-qualityassessment_factorQuality Rating: 3  0.0050  -2.9957  -0.6470  ** 
-qualityassessment_factorQuality Rating: 4  0.7921  -1.8119   1.4085     
-qualityassessment_factorQuality Rating: 5  0.8870  -2.4319   2.1245     
-qualityassessment_factorQuality Rating: 6  0.4249  -1.8121   0.8080     
-qualityassessment_factorQuality Rating: 7  0.0998  -1.7021   0.1664   . 
-qualityassessment_factorQuality Rating: 9  0.0166  -2.6196  -0.3096   * 
+qualityassessment_factorQuality Rating: 1  0.2308  -0.9584   3.6513     
+qualityassessment_factorQuality Rating: 3  0.0050  -2.9976  -0.6451  ** 
+qualityassessment_factorQuality Rating: 4  0.7925  -1.8147   1.4114     
+qualityassessment_factorQuality Rating: 5  0.8872  -2.4358   2.1285     
+qualityassessment_factorQuality Rating: 6  0.4257  -1.8144   0.8103     
+qualityassessment_factorQuality Rating: 7  0.1003  -1.7038   0.1680     
+qualityassessment_factorQuality Rating: 9  0.0171  -2.6153  -0.3013   * 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
