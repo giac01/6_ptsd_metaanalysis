@@ -95,6 +95,8 @@ Created mean-centered age variable
 
 Fixed error on the Harb study where males were not measured in their PTSD
 
+Create 3-part quality assessment (high, medium, low)
+
 ```{r}
 
 # df$male_plus_female_percent = df$mpercent + df$fpercent
@@ -155,7 +157,15 @@ df$mptsd[kakaje_row]        = 304/(407+304)
 df$fptsd[kakaje_row]        = 413/(229+413)
 df$ptsd[kakaje_row]         = (304+413)/(407+304+229+413)
 
+qa = as.numeric(df$qualityassessment)
 
+df$qualityassessment_3factor        = dplyr::case_when(
+  (qa >= 0 ) &  (qa <= 4) ~ "High Risk",
+  (qa >= 5 ) &  (qa <= 8) ~ "Medium Risk",
+  (qa >= 9 ) &  (qa <= 12) ~ "Low Risk",
+  .default = NA_character_
+) %>%
+  as.factor()
 
 df = df %>%
      # filter(!exclude) %>%
@@ -518,7 +528,7 @@ moderation_models[["Quality"]] = rma.glmm(
   verbose = FALSE,
   method = "ML",
   # intercept = FALSE,
-  mods = ~ 1 + qualityassessment_factor,
+  mods = ~ 1 + qualityassessment_3factor,
   to = "all",
   test = "t" # This is recommended here metafor/html/misc-recs.html
 )
@@ -599,7 +609,7 @@ moderation_models_nointercept[["Quality"]] = rma.glmm(
   verbose = FALSE,
   method = "ML",
   # intercept = FALSE,
-  mods = ~ 0 + qualityassessment_factor,
+  mods = ~ 0 + qualityassessment_3factor,
   to = "all",
   test = "t" # This is recommended here metafor/html/misc-recs.html
 )
@@ -696,7 +706,7 @@ moderation_coef %>%
     rows = which(model=="Aftermath")
   ) %>%
   tab_row_group(
-    label = "Quality Assessment, F(df1 = 6, df2 = 14) = 1.69, p = .20",
+    label = "Quality Assessment, F(df1 = 2, df2 = 18) = 0.639, p = .54",
     rows = which(model=="Quality")
   ) %>%
    fmt_percent(
