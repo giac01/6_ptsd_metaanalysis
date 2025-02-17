@@ -12,6 +12,8 @@ toc: true
 
 ## Load Data and R Packages
 
+All analyses were run in the docker container [rockertidyverse432:6_ptsd_v5](https://hub.docker.com/repository/docker/bignardig/rockertidyverse432/general)
+
 #### R Packages we will use:
 
 ```{r}
@@ -877,7 +879,6 @@ ggsave(file = file.path("plots","bubbleplot_aftermath2.pdf"), width = 4, height 
 ## R4) Reviewer Requested Analyses
 
 A reviewer requested that we check all moderators while simultaneously controlling for measure.
-
 
 ```{r}
 
