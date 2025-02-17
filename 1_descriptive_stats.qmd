@@ -614,8 +614,6 @@ moderation_models_nointercept[["Quality"]] = rma.glmm(
   test = "t" # This is recommended here metafor/html/misc-recs.html
 )
 
-
-
 ```
 
 ### Create Table
@@ -644,8 +642,6 @@ moderation_df %>%
      rownames_to_stub = TRUE) %>%
   gt::tab_header(title = "Moderation Tests") %>%
   fmt_number(columns = c(QM,QMp), decimals = 3)
-  
-  
   
 ```
 
@@ -726,8 +722,6 @@ moderation_coef %>%
     fns      = function(x) {paste0("b = ", gbtoolbox::apa_num(as.numeric(x)))}
   )
 
-
-
 ```
 
 ### Additional Plots
@@ -749,7 +743,6 @@ df %>%
   
 
   table(df$war)
-
 
 ```
 
@@ -879,6 +872,87 @@ ggsave(file = file.path("plots","bubbleplot_aftermath2.pdf"), width = 4, height 
 # 
 # ggsave(file = file.path("plots","bubbleplot_aftermath.pdf"), width = 4, height = 4)
 
+```
+
+## R4) Reviewer Requested Analyses
+
+A reviewer requested that we check all moderators while simultaneously controlling for measure.
+
+
+```{r}
+
+#| echo: true
+#| output: false
+#| warning: false
+
+moderation_models2 = list()
+
+moderation_models2[["Age"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + measure + age_centered,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models2[["War"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + measure + war,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models2[["Aftermath"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + measure + aftermath_centered,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models2[["Economic"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + measure + factor(econindex),
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models2[["Quality"]] = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + measure + qualityassessment_3factor,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
+
+moderation_models2
 ```
 
 ## Appendix: Model Output
