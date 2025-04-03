@@ -807,7 +807,7 @@ ggsave(file = file.path("plots","bubbleplot_aftermath2.pdf"), width = 4, height 
 
 ```{r}
 
-m0 = rma.glmm(
+rma.glmm(
   xi = `ptsd_n`, 
   ni = `participants`, 
   data = df, 
