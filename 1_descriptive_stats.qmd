@@ -728,7 +728,7 @@ moderation_coef %>%
 
 ### Additional Plots
 
-### Age
+#### Age
 
 ```{r}
 
@@ -748,7 +748,7 @@ df %>%
 
 ```
 
-### Aftermath
+#### Aftermath plot
 
 ```{r}
 intercept = moderation_models$Aftermath$b[1,1]
@@ -800,6 +800,25 @@ df %>%
 ggsave(file = file.path("plots","bubbleplot_aftermath2.pdf"), width = 4, height = 4)
 
 
+
+```
+
+### Is aftermath length significant after age adjustment
+
+```{r}
+
+m0 = rma.glmm(
+  xi = `ptsd_n`, 
+  ni = `participants`, 
+  data = df, 
+  measure="PLO",
+  verbose = FALSE,
+  method = "ML",
+  # intercept = FALSE,
+  mods = ~ 1 + age_centered + aftermath_centered,
+  to = "all",
+  test = "t" # This is recommended here metafor/html/misc-recs.html
+)
 
 ```
 
